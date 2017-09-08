@@ -6,25 +6,43 @@ import (
 	"github.com/senseyeio/diligent"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 type packageJson struct {
-	Deps map[string]string `json:"dependencies"`
+	Deps    map[string]string `json:"dependencies"`
+	DevDeps map[string]string `json:"devDependencies"`
 }
 
 type npmPackage struct {
 	License string `json:"license"`
 }
 
-type npmDeper struct{}
+type npmDeper struct {
+	config Config
+}
+
+type Config struct {
+	DevDependencies bool
+}
 
 func New() diligent.Deper {
-	return &npmDeper{}
+	return NewWithOptions(Config{})
+}
+
+func NewWithOptions(c Config) diligent.Deper {
+	return &npmDeper{c}
 }
 
 func (n *npmDeper) Name() string {
 	return "npm"
+}
+
+func mergeMaps(to map[string]string, from map[string]string) {
+	for pkg, version := range from {
+		to[pkg] = version
+	}
 }
 
 func (n *npmDeper) Dependencies(file []byte, options map[string]interface{}) ([]diligent.Dep, error) {
@@ -34,8 +52,14 @@ func (n *npmDeper) Dependencies(file []byte, options map[string]interface{}) ([]
 		return nil, err
 	}
 
-	deps := make([]diligent.Dep, 0, len(pkg.Deps))
-	for pkg, version := range pkg.Deps {
+	licensesToGet := map[string]string{}
+	mergeMaps(licensesToGet, pkg.Deps)
+	if n.config.DevDependencies {
+		mergeMaps(licensesToGet, pkg.DevDeps)
+	}
+
+	deps := make([]diligent.Dep, 0, len(licensesToGet))
+	for pkg, version := range licensesToGet {
 		l, err := getNPMLicense(pkg, version)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Failed to get license for %s: %s", pkg, err.Error()))
@@ -50,7 +74,8 @@ func (n *npmDeper) IsCompatible(filename string, fileContents []byte) bool {
 }
 
 func getNPMLicense(pkgName, version string) (diligent.Dep, error) {
-	resp, err := http.Get(fmt.Sprintf("https://registry.npmjs.org/%s/%s", pkgName, version))
+	url := fmt.Sprintf("https://registry.npmjs.org/%s/%s", url.QueryEscape(pkgName), url.QueryEscape(version))
+	resp, err := http.Get(url)
 	if err != nil {
 		return diligent.Dep{}, err
 	}

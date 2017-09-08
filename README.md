@@ -28,12 +28,12 @@ docker run -v ~/app:/dep senseyeio/diligent package.json
 
 ### Locally
 
-Checkout diligent to your go path. Build the application and run the resulting binary as follows:
+Checkout diligent to your go path. Go get and build the application. Run the resulting binary as follows:
 
 ```
 dil {file path}
 ```
-Given the example above, I would run the following command:
+Given the example above, run the following command:
 ```
 dil ~/app/package.json
 ```
