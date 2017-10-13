@@ -30,7 +30,7 @@ func (g *govendor) Name() string {
 	return "govendor"
 }
 
-func (g *govendor) Dependencies(file []byte, options map[string]interface{}) ([]diligent.Dep, error) {
+func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, error) {
 	var vendorFile vendor
 	err := json.Unmarshal(file, &vendorFile)
 	if err != nil {
