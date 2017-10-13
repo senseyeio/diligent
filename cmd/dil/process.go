@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"github.com/senseyeio/diligent"
 	"io/ioutil"
 	"log"
 )
 
-func runDep(deper diligent.Deper, filePath string) {
+func runDep(deper diligent.Deper, reper diligent.Reporter, filePath string) {
 	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +17,7 @@ func runDep(deper diligent.Deper, filePath string) {
 		log.Fatal(err.Error())
 	}
 
-	for _, dep := range deps {
-		fmt.Println(fmt.Sprintf("%s -> %s", dep.Name, dep.License.Name))
+	if err = reper.Report(deps); err != nil {
+		log.Fatal(err.Error())
 	}
 }

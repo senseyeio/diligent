@@ -20,7 +20,7 @@ Can only be used with package.json files`,
 		npmDeper := npm.NewWithOptions(npm.Config{
 			DevDependencies: npmDevDeps,
 		})
-		runDep(npmDeper, args[0])
+		runDep(npmDeper, getReporter(), args[0])
 	},
 }
 

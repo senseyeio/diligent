@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/stdout"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
@@ -23,10 +25,14 @@ var RootCmd = &cobra.Command{
 			log.Fatal(err.Error())
 		}
 
-		runDep(deper, filePath)
+		runDep(deper, getReporter(), filePath)
 	},
 }
 
 func init() {
 	cobra.OnInitialize()
+}
+
+func getReporter() diligent.Reporter {
+	return stdout.NewReporter()
 }
