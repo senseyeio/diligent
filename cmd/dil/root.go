@@ -2,10 +2,15 @@ package main
 
 import (
 	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/csv"
 	"github.com/senseyeio/diligent/stdout"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
+)
+
+var (
+	csvFilePath string
 )
 
 var RootCmd = &cobra.Command{
@@ -31,8 +36,12 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	cobra.OnInitialize()
+	RootCmd.PersistentFlags().StringVar(&csvFilePath, "csv", "", "Writes CSV to the provided file path")
 }
 
 func getReporter() diligent.Reporter {
+	if csvFilePath != "" {
+		return csv.NewReporter(csvFilePath)
+	}
 	return stdout.NewReporter()
 }
