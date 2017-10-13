@@ -45,7 +45,7 @@ func mergeMaps(to map[string]string, from map[string]string) {
 	}
 }
 
-func (n *npmDeper) Dependencies(file []byte, options map[string]interface{}) ([]diligent.Dep, error) {
+func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, error) {
 	var pkg packageJson
 	err := json.Unmarshal(file, &pkg)
 	if err != nil {

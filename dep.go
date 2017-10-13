@@ -7,6 +7,6 @@ type Dep struct {
 
 type Deper interface {
 	Name() string
-	Dependencies(file []byte, options map[string]interface{}) ([]Dep, error)
+	Dependencies(file []byte) ([]Dep, error)
 	IsCompatible(filename string, fileContents []byte) bool
 }

@@ -13,9 +13,7 @@ func runDep(deper diligent.Deper, filePath string) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(deper.Name())
-
-	deps, err := deper.Dependencies(fileBytes, map[string]interface{}{})
+	deps, err := deper.Dependencies(fileBytes)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
