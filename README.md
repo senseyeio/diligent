@@ -1,4 +1,4 @@
-# Diligent
+# Diligent [![Build Status](https://travis-ci.org/senseyeio/diligent.svg?branch=master)](https://travis-ci.org/senseyeio/diligent)
 
 Get the licenses associated with your software dependencies.
 
