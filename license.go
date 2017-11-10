@@ -362,3 +362,7 @@ func GetLicenseFromIdentifier(identifier string) License {
 	}
 	return l
 }
+
+func IsUnknownLicense(l License) bool {
+	return l.Name == "Unknown"
+}

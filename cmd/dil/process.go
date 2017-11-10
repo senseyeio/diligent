@@ -9,7 +9,7 @@ import (
 func runDep(deper diligent.Deper, reper diligent.Reporter, filePath string) {
 	fileBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 
 	deps, err := deper.Dependencies(fileBytes)
@@ -18,6 +18,10 @@ func runDep(deper diligent.Deper, reper diligent.Reporter, filePath string) {
 	}
 
 	if err = reper.Report(deps); err != nil {
+		log.Fatal(err.Error())
+	}
+
+	if err = validateDependencies(deps); err != nil {
 		log.Fatal(err.Error())
 	}
 }
