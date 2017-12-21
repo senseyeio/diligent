@@ -1,5 +1,7 @@
 package diligent
 
+import "sort"
+
 type Category string
 
 const (
@@ -408,4 +410,15 @@ func GetLicenseFromIdentifier(identifier string) License {
 
 func IsUnknownLicense(l License) bool {
 	return l.Name == "Unknown"
+}
+
+func GetLicenses() []License {
+	output := make([]License, 0, len(lookup))
+	for _, v := range lookup {
+		output = append(output, v)
+	}
+	sort.Slice(output, func(i, j int) bool {
+		return output[i].Identifier < output[j].Identifier
+	})
+	return output
 }

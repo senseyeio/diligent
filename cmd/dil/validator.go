@@ -6,17 +6,16 @@ import (
 	"log"
 )
 
-func isInWhitelist(d diligent.Dep) bool {
+func isInWhitelist(l diligent.License) bool {
+	if licenseWhitelist == nil {
+		return true
+	}
 	for _, w := range licenseWhitelist {
-		if w == d.License.Identifier {
+		if w == l.Identifier {
 			return true
 		}
 	}
 	return false
-}
-
-func whitelistProvided() bool {
-	return licenseWhitelist != nil
 }
 
 func checkWhitelist() error {
@@ -31,7 +30,7 @@ func checkWhitelist() error {
 
 func validateDependencies(deps []diligent.Dep) error {
 	for _, d := range deps {
-		if whitelistProvided() && isInWhitelist(d) == false {
+		if isInWhitelist(d.License) == false {
 			return fmt.Errorf("dependency %s has license %s which is not in your license whitelist", d.Name, d.License.Identifier)
 		}
 	}
