@@ -16,23 +16,24 @@ const (
 	// A license that requires you to redistribute source code, including your changes, and also to provide attribution
 	// for the software authors.  Your obligation to redistribute source code, including proprietary code linked with
 	// code under this license, is limited according to license-specific rules
-	CopyLeftLimited Category = "copyleft limited"
+	CopyLeftLimited Category = "copyleft-limited"
 	// An Attribution-style license, that contains restrictions regarding the usage of the software (for example, where
 	// the software is not intended for use in nuclear power plants) or the redistribution of the software (for example,
 	// where commercial redistribution of the software is not allowed without express permission).  The Free Software
 	// Foundation (FSF) says that a license with this kind of restriction is not really open source, although the
 	// OSI point of view is not that strict
-	FreeRestricted Category = "free restricted"
+	FreeRestricted Category = "free-restricted"
 	// Proprietary Free software that may not require a commercial license but may have specific terms and conditions
 	// which Product Teams are obligated to follow. Some of these terms and conditions are provided with or in the
 	// code or in clickable downloaded licenses.  Examples are the Sun Binary Code License Agreement or a freely
 	// offered BSP
-	ProprietaryFree Category = "proprietary free"
+	ProprietaryFree Category = "proprietary-free"
 	// Open source software that is made available without explicit obligations, but which has a license notice that
 	// must be kept with the code per organization policy.  The match may be to software, code examples on a website,
 	// published public domain specifications or another type of publication
-	PublicDomain Category = "public domain"
+	PublicDomain Category = "public-domain"
 )
+var categories = []Category{Permissive, CopyLeft, CopyLeftLimited, FreeRestricted, ProprietaryFree, PublicDomain}
 
 type Type string
 
@@ -412,13 +413,52 @@ func IsUnknownLicense(l License) bool {
 	return l.Name == "Unknown"
 }
 
-func GetLicenses() []License {
+func getLicenses(predicate func(license License) bool) []License {
 	output := make([]License, 0, len(lookup))
 	for _, v := range lookup {
-		output = append(output, v)
+		if predicate(v) {
+			output = append(output, v)
+		}
 	}
 	sort.Slice(output, func(i, j int) bool {
 		return output[i].Identifier < output[j].Identifier
 	})
 	return output
+}
+
+func GetLicenses() []License {
+	return getLicenses(func(l License) bool {
+		return true
+	})
+}
+
+func GetCategoryLicenses(cat Category) []License {
+	return getLicenses(func(l License) bool {
+		return l.Category == cat
+	})
+}
+
+func getCategoryFromString(catStr string) (*Category) {
+	for _, category := range categories {
+		if catStr == string(category) {
+			return &category
+		}
+	}
+	return nil
+}
+
+// ReplaceCategoriesWithIdentifiers replaces license category names with the identifiers of the licenses belonging
+// to that category. Strings found which are not category names are not touched.
+func ReplaceCategoriesWithIdentifiers(identifiers []string) []string {
+	resolvedWhitelist := make([]string, 0, len(identifiers))
+	for _, i := range identifiers {
+		if cat := getCategoryFromString(i); cat != nil {
+			for _, l := range GetCategoryLicenses(*cat) {
+				resolvedWhitelist = append(resolvedWhitelist, l.Identifier)
+			}
+		} else {
+			resolvedWhitelist = append(resolvedWhitelist, i)
+		}
+	}
+	return resolvedWhitelist
 }

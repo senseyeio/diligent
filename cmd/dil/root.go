@@ -20,6 +20,7 @@ var RootCmd = &cobra.Command{
 	Long:  `Diligent is a CLI tool which determines the licenses associated with your software dependencies`,
 	Args:  cobra.MinimumNArgs(1),
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		licenseWhitelist = diligent.ReplaceCategoriesWithIdentifiers(licenseWhitelist)
 		if err := checkWhitelist(); err != nil {
 			log.Fatal(err.Error())
 		}
@@ -43,7 +44,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize()
 	RootCmd.PersistentFlags().StringVar(&csvFilePath, "csv", "", "Writes CSV to the provided file path")
-	RootCmd.PersistentFlags().StringSliceVarP(&licenseWhitelist, "whitelist", "w", nil, "Specify licenses compatible with your software. If licenses are found which are not in your whitelist, the command will return with a non zero exit code.")
+	RootCmd.PersistentFlags().StringSliceVarP(&licenseWhitelist, "whitelist", "w", nil, "Specify licenses compatible with your software. If licenses are found which are not in your whitelist, the command will return with a non zero exit code. Whitelisting license identifiers or categories of licenses is possible, the following categories are supported: 'permissive', 'copyleft', 'copyleft-limited', 'free-restricted', 'proprietary-free', 'public-domain'. See the readme for more details.")
 }
 
 func getReporter() diligent.Reporter {
