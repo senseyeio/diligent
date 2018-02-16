@@ -7,7 +7,7 @@ import (
 )
 
 func isInWhitelist(l diligent.License) bool {
-	if licenseWhitelist == nil {
+	if len(licenseWhitelist) == 0 {
 		return true
 	}
 	for _, w := range licenseWhitelist {

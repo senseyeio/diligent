@@ -14,6 +14,7 @@ The following languages and dependency managers are supported:
 
  - Go
    - govendor (vendor.json)
+   - dep (Gopkg.lock)
  - Node / Javascript
    - NPM (package.json)
 
@@ -55,7 +56,7 @@ The following requirements need to be satisfied when running locally:
 
 The following assumes `$GOPATH/bin` is within your `PATH`:
 ```
-go install github.com/senseyeio/diligent
+go install github.com/senseyeio/diligent/cmd/dil
 ```
 
 Run the resulting binary as follows:
