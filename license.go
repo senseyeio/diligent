@@ -402,12 +402,31 @@ var lookup = map[string]License{
 	"ZPL-2.1":                          {Identifier: "ZPL-2.1", Name: "Zope Public License 2.1", ShortName: "ZPL 2.1", Category: Permissive, Type: OpenSource, URL: "http://www.zope.org/Resources/License/", Owner: "Zope Community", OwnerURL: "http://www.zope.org/", OwnerType: Organization},
 }
 
+func handleNonSPDXIdentifiers(identifier string) (License, bool) {
+	var spdx string
+	switch identifier {
+	case "NewBSD":
+		spdx = "BSD-3-Clause"
+	case "FreeBSD":
+		spdx = "BSD-2-Clause"
+	}
+	if spdx == "" {
+		return License{}, false
+	}
+	l, ok := lookup[spdx]
+	return l, ok
+}
+
 func GetLicenseFromIdentifier(identifier string) (License, error) {
 	l, ok := lookup[identifier]
-	if !ok {
-		return License{}, fmt.Errorf("License identifier %s is not known to Diligent", identifier)
+	if ok {
+		return l, nil
 	}
-	return l, nil
+	l, ok = handleNonSPDXIdentifiers(identifier)
+	if ok {
+		return l, nil
+	}
+	return License{}, fmt.Errorf("license identifier %s is not known to diligent", identifier)
 }
 
 func getLicenses(predicate func(license License) bool) []License {
