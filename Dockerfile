@@ -9,7 +9,6 @@ RUN apk update && apk upgrade && \
 WORKDIR /go/src/github.com/senseyeio/diligent
 COPY . .
 
-RUN go get ./...
 RUN go install github.com/senseyeio/diligent/cmd/dil
 
 WORKDIR /dep

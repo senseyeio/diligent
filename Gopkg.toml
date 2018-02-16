@@ -1,0 +1,11 @@
+[[constraint]]
+  branch = "master"
+  name = "github.com/ryanuber/go-license"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.1"
+
+[prune]
+  go-tests = true
+  unused-packages = true
