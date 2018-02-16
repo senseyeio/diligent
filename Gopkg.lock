@@ -8,6 +8,12 @@
   version = "v1.0"
 
 [[projects]]
+  name = "github.com/pelletier/go-toml"
+  packages = ["."]
+  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/ryanuber/go-license"
   packages = ["."]
@@ -28,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b633ef75fc100fab1cb6c519069fe427755334e4791fd79a099996ff8acf8281"
+  inputs-digest = "ffe0c7af117ac2e3ebdd0f32c223ed2d55784ebc43c5144baf837bab859b4df7"
   solver-name = "gps-cdcl"
   solver-version = 1
