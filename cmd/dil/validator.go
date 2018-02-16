@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/senseyeio/diligent"
-	"log"
 )
 
 func isInWhitelist(l diligent.License) bool {
@@ -20,9 +20,9 @@ func isInWhitelist(l diligent.License) bool {
 
 func checkWhitelist() error {
 	for _, w := range licenseWhitelist {
-		l := diligent.GetLicenseFromIdentifier(w)
-		if diligent.IsUnknownLicense(l) {
-			log.Printf("Whitelisted license %s is not a known license identifier", w)
+		_, err := diligent.GetLicenseFromIdentifier(w)
+		if err != nil {
+			return fmt.Errorf("whitelisted license %s is not a known license identifier", w)
 		}
 	}
 	return nil

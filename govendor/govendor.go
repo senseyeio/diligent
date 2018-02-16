@@ -3,12 +3,13 @@ package govendor
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ryanuber/go-license"
-	"github.com/senseyeio/diligent"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/ryanuber/go-license"
+	"github.com/senseyeio/diligent"
 )
 
 type pkg struct {
@@ -69,5 +70,5 @@ func getGoLicense(goPackagePath string) (diligent.License, error) {
 		return diligent.License{}, err
 	}
 
-	return diligent.GetLicenseFromIdentifier(l.Type), nil
+	return diligent.GetLicenseFromIdentifier(l.Type)
 }

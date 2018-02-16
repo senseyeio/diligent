@@ -2,21 +2,22 @@ package dep
 
 import (
 	"fmt"
-	"github.com/ryanuber/go-license"
-	"github.com/senseyeio/diligent"
-	"github.com/pelletier/go-toml"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/pelletier/go-toml"
+	"github.com/ryanuber/go-license"
+	"github.com/senseyeio/diligent"
 )
 
 type lockedProject struct {
-	Name     string   `toml:"name"`
+	Name string `toml:"name"`
 }
 
 type lock struct {
-	Projects  []lockedProject `toml:"projects"`
+	Projects []lockedProject `toml:"projects"`
 }
 
 type dep struct{}
@@ -63,5 +64,5 @@ func getGoLicense(goPackagePath string) (diligent.License, error) {
 		return diligent.License{}, err
 	}
 
-	return diligent.GetLicenseFromIdentifier(l.Type), nil
+	return diligent.GetLicenseFromIdentifier(l.Type)
 }

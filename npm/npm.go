@@ -3,11 +3,12 @@ package npm
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/senseyeio/diligent"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/senseyeio/diligent"
 )
 
 type packageJson struct {
@@ -91,9 +92,14 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 		return diligent.Dep{}, err
 	}
 
+	l, err := diligent.GetLicenseFromIdentifier(packageInfo.License)
+	if err != nil {
+		return diligent.Dep{}, err
+	}
+
 	return diligent.Dep{
 		Name:    pkgName,
-		License: diligent.GetLicenseFromIdentifier(packageInfo.License),
+		License: l,
 	}, nil
 }
 
