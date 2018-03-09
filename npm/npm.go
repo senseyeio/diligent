@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/senseyeio/diligent"
+	"errors"
 )
 
 type packageJson struct {
@@ -17,7 +18,7 @@ type packageJson struct {
 }
 
 type npmPackage struct {
-	License string `json:"license"`
+	License *string `json:"license"`
 }
 
 type npmDeper struct {
@@ -92,7 +93,11 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 		return diligent.Dep{}, err
 	}
 
-	l, err := diligent.GetLicenseFromIdentifier(packageInfo.License)
+	if packageInfo.License == nil {
+		return diligent.Dep{}, errors.New("no license information in NPM")
+	}
+
+	l, err := diligent.GetLicenseFromIdentifier(*packageInfo.License)
 	if err != nil {
 		return diligent.Dep{}, err
 	}
