@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"os/exec"
 	"strings"
 
-	"github.com/ryanuber/go-license"
 	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/go"
 )
 
 type pkg struct {
@@ -41,7 +39,7 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, error) {
 	deps := make([]diligent.Dep, 0, len(vendorFile.Packages))
 	for _, pkg := range vendorFile.Packages {
 		pkgPath := pkg.Path
-		l, err := getGoLicense(pkgPath)
+		l, err := _go.GetLicense(pkgPath)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Failed to get license for %s: %s", pkgPath, err.Error()))
 		} else {
@@ -55,20 +53,4 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, error) {
 }
 func (g *govendor) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "vendor.json") != -1
-}
-
-func getGoLicense(goPackagePath string) (diligent.License, error) {
-	cmd := exec.Command("go", "get", goPackagePath)
-	cmd.Run()
-
-	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), goPackagePath))
-	if err != nil {
-		components := strings.Split(goPackagePath, "/")
-		if len(components) > 3 {
-			return getGoLicense(strings.Join(components[:len(components)-1], "/"))
-		}
-		return diligent.License{}, err
-	}
-
-	return diligent.GetLicenseFromIdentifier(l.Type)
 }

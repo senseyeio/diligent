@@ -3,13 +3,11 @@ package dep
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/pelletier/go-toml"
-	"github.com/ryanuber/go-license"
 	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/go"
 )
 
 type lockedProject struct {
@@ -39,7 +37,7 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, error) {
 
 	deps := make([]diligent.Dep, 0, len(l.Projects))
 	for _, pkg := range l.Projects {
-		l, err := getGoLicense(pkg.Name)
+		l, err := _go.GetLicense(pkg.Name)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Failed to get license for %s: %s", pkg.Name, err.Error()))
 		} else {
@@ -51,18 +49,7 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, error) {
 	}
 	return deps, nil
 }
+
 func (d *dep) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "Gopkg.lock") != -1
-}
-
-func getGoLicense(goPackagePath string) (diligent.License, error) {
-	cmd := exec.Command("go", "get", goPackagePath)
-	cmd.Run()
-
-	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), goPackagePath))
-	if err != nil {
-		return diligent.License{}, err
-	}
-
-	return diligent.GetLicenseFromIdentifier(l.Type)
 }
