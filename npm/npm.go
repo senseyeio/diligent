@@ -8,8 +8,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/senseyeio/diligent"
 	"errors"
+
+	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/warning"
 )
 

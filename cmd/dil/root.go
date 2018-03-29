@@ -5,8 +5,6 @@ import (
 	"github.com/senseyeio/diligent/csv"
 	"github.com/senseyeio/diligent/stdout"
 	"github.com/spf13/cobra"
-	"fmt"
-	"os"
 )
 
 var (
@@ -22,8 +20,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		licenseWhitelist = diligent.ReplaceCategoriesWithIdentifiers(licenseWhitelist)
 		if err := checkWhitelist(); err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(70)
+			fatal(70, err.Error())
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -31,8 +28,7 @@ var RootCmd = &cobra.Command{
 		fileBytes := mustReadFile(filePath)
 		deper, err := getDeper(filePath, fileBytes)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(69)
+			fatal(69, err.Error())
 		}
 
 		runDep(deper, getReporter(), filePath)

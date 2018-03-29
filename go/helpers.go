@@ -1,14 +1,15 @@
 package _go
 
 import (
-	"github.com/senseyeio/diligent"
-	"os/exec"
-	"github.com/ryanuber/go-license"
+	"errors"
 	"fmt"
 	"os"
-	"github.com/senseyeio/diligent/github"
-	"errors"
+	"os/exec"
 	"strings"
+
+	"github.com/ryanuber/go-license"
+	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/github"
 )
 
 func GetLicense(packagePath string) (diligent.License, error) {
