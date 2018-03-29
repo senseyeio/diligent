@@ -5,6 +5,7 @@ import (
 	"sort"
 )
 
+// Category attempts to categorize licenses based on what they allow
 type Category string
 
 const (
@@ -39,6 +40,7 @@ const (
 
 var categories = []Category{Permissive, CopyLeft, CopyLeftLimited, FreeRestricted, ProprietaryFree, PublicDomain}
 
+// Type is either open source of proprietary
 type Type string
 
 const (
@@ -46,6 +48,7 @@ const (
 	Proprietary Type = "proprietary"
 )
 
+// OwnerType identifies the license owner as either an individual or organisation
 type OwnerType string
 
 const (
@@ -53,6 +56,7 @@ const (
 	Person       OwnerType = "person"
 )
 
+// License contains information about a given license
 type License struct {
 	Identifier string
 	Name       string
@@ -417,6 +421,7 @@ func handleNonSPDXIdentifiers(identifier string) (License, bool) {
 	return l, ok
 }
 
+// GetLicenseFromIdentifier returns a License given an identifier. Ideally this identifier would be a SPDX identifier.
 func GetLicenseFromIdentifier(identifier string) (License, error) {
 	l, ok := lookup[identifier]
 	if ok {
@@ -442,12 +447,14 @@ func getLicenses(predicate func(license License) bool) []License {
 	return output
 }
 
+// GetLicenses returns all the licenses known by Diligent
 func GetLicenses() []License {
 	return getLicenses(func(l License) bool {
 		return true
 	})
 }
 
+// GetCategoryLicenses returns all the licenses belonging to a given category
 func GetCategoryLicenses(cat Category) []License {
 	return getLicenses(func(l License) bool {
 		return l.Category == cat

@@ -27,18 +27,23 @@ type npmDeper struct {
 	config Config
 }
 
+// Config allows default options to be altered
 type Config struct {
+	// DevDependencies can be set to true if you want to gather the licenses of your devDependencies as well as your dependencies
 	DevDependencies bool
 }
 
+// New returns a Deper capable of dealing with package.json manifest files
 func New() diligent.Deper {
 	return NewWithOptions(Config{})
 }
 
+// NewWithOptions is identical to New but allows the default options to be overridden
 func NewWithOptions(c Config) diligent.Deper {
 	return &npmDeper{c}
 }
 
+// Name returns "npm"
 func (n *npmDeper) Name() string {
 	return "npm"
 }
@@ -49,6 +54,7 @@ func mergeMaps(to map[string]string, from map[string]string) {
 	}
 }
 
+// Dependencies returns the licenses associated with the NPM dependencies
 func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
 	var pkg packageJson
 	err := json.Unmarshal(file, &pkg)
@@ -74,6 +80,8 @@ func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 	}
 	return deps, warns, nil
 }
+
+// IsCompatible returns true if the filename is package.json
 func (n *npmDeper) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "package.json") != -1
 }

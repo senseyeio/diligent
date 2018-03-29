@@ -12,6 +12,7 @@ import (
 	"github.com/senseyeio/diligent/github"
 )
 
+// GetLicense will return the license associated with a given go package
 func GetLicense(packagePath string) (diligent.License, error) {
 	components := strings.Split(packagePath, "/")
 	// in some go vendoring solutions full paths to packages are defined as dependencies

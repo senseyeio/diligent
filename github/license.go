@@ -1,13 +1,14 @@
 package github
 
 import (
-	"github.com/senseyeio/diligent"
-	"net/http"
-	"fmt"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
+
+	"github.com/senseyeio/diligent"
 )
 
 var pathComponentsRegex = regexp.MustCompile(`\/([^/]*)`)
@@ -33,15 +34,17 @@ func getOwnerAndRepoFromURL(s string) (owner, repo string, err error) {
 		return
 	}
 	owner = pathComponents[0][1]
-	repo =  pathComponents[1][1]
+	repo = pathComponents[1][1]
 	return
 }
 
+// IsGithubURL will return true if the provided string is a github repo URL
 func IsGithubURL(s string) bool {
 	_, _, err := getOwnerAndRepoFromURL(s)
 	return err == nil
 }
 
+// GetLicenseFromURL will attempt to get the license associated with a github repo
 func GetLicenseFromURL(s string) (diligent.License, error) {
 	owner, repo, err := getOwnerAndRepoFromURL(s)
 	if err != nil {
@@ -50,6 +53,7 @@ func GetLicenseFromURL(s string) (diligent.License, error) {
 	return GetLicense(owner, repo)
 }
 
+// GetLicense will attempt to get the license associated with a repository identified by its owner and name
 func GetLicense(owner, repo string) (diligent.License, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/license", url.PathEscape(owner), url.PathEscape(repo))
 	resp, err := http.Get(url)

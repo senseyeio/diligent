@@ -20,14 +20,17 @@ type vendor struct {
 
 type govendor struct{}
 
+// New returns a Deper capable of handling govendor manifest files
 func New() diligent.Deper {
 	return &govendor{}
 }
 
+// Name returns "govendor"
 func (g *govendor) Name() string {
 	return "govendor"
 }
 
+// Dependencies returns the licenses of the go packages defined within the govendor manifest
 func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
 	var vendorFile vendor
 	err := json.Unmarshal(file, &vendorFile)
@@ -51,6 +54,8 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 	}
 	return deps, warns, nil
 }
+
+// IsCompatible returns true if the filename is vendor.json
 func (g *govendor) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "vendor.json") != -1
 }
