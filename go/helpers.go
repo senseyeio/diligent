@@ -13,11 +13,20 @@ import (
 
 func GetLicense(packagePath string) (diligent.License, error) {
 	components := strings.Split(packagePath, "/")
-	// look for the base package identifier so github.com/aws/aws-sdk-go/aws becomes github.com/aws/aws-sdk-go
-	if len(components) < 3 {
+	// in some go vendoring solutions full paths to packages are defined as dependencies
+	// need to look for the base package identifier so github.com/aws/aws-sdk-go/aws becomes github.com/aws/aws-sdk-go
+	if len(components) < 2 {
 		return diligent.License{}, errors.New("invalid go package path")
 	}
-	return getLicenseForBasePackage(strings.Join(components[:3], "/"))
+	// try a three component base package, if possible, as it is most common
+	if len(components) >= 3 {
+		l, err := getLicenseForBasePackage(strings.Join(components[:3], "/"))
+		if err == nil {
+			return l, nil
+		}
+	}
+	// can have libraries with just two components, for example gopkg.in/mgo.v2
+	return getLicenseForBasePackage(strings.Join(components[:2], "/"))
 }
 
 func getLicenseForBasePackage(pkg string) (diligent.License, error) {
@@ -31,7 +40,7 @@ func getLicenseForBasePackage(pkg string) (diligent.License, error) {
 	if err == nil {
 		return l, nil
 	}
-	return diligent.License{}, errors.New("failed to get license")
+	return diligent.License{}, errors.New("failed to find license")
 }
 
 func isGithubPackage(pkg string) bool {
