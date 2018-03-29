@@ -20,5 +20,5 @@ func getDeper(filename string, fileContent []byte) (diligent.Deper, error) {
 			return deper, nil
 		}
 	}
-	return nil, errors.New("Unknown file")
+	return nil, errors.New("unknown file")
 }

@@ -2,12 +2,11 @@ package govendor
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"strings"
 
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/go"
+	"github.com/senseyeio/diligent/warning"
 )
 
 type pkg struct {
@@ -29,19 +28,20 @@ func (g *govendor) Name() string {
 	return "govendor"
 }
 
-func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, error) {
+func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
 	var vendorFile vendor
 	err := json.Unmarshal(file, &vendorFile)
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
 
 	deps := make([]diligent.Dep, 0, len(vendorFile.Packages))
+	warns := make([]diligent.Warning, 0, len(vendorFile.Packages))
 	for _, pkg := range vendorFile.Packages {
 		pkgPath := pkg.Path
 		l, err := _go.GetLicense(pkgPath)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Failed to get license for %s: %s", pkgPath, err.Error()))
+			warns = append(warns, warning.New(pkgPath, err.Error()))
 		} else {
 			deps = append(deps, diligent.Dep{
 				Name:    pkgPath,
@@ -49,7 +49,7 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, error) {
 			})
 		}
 	}
-	return deps, nil
+	return deps, warns, nil
 }
 func (g *govendor) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "vendor.json") != -1

@@ -10,6 +10,7 @@ import (
 
 	"github.com/senseyeio/diligent"
 	"errors"
+	"github.com/senseyeio/diligent/warning"
 )
 
 type packageJson struct {
@@ -47,11 +48,11 @@ func mergeMaps(to map[string]string, from map[string]string) {
 	}
 }
 
-func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, error) {
+func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
 	var pkg packageJson
 	err := json.Unmarshal(file, &pkg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	licensesToGet := map[string]string{}
@@ -61,15 +62,16 @@ func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, error) {
 	}
 
 	deps := make([]diligent.Dep, 0, len(licensesToGet))
+	warns := make([]diligent.Warning, 0, len(licensesToGet))
 	for pkg, version := range licensesToGet {
 		l, err := getNPMLicense(pkg, version)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Failed to get license for %s: %s", pkg, err.Error()))
+			warns = append(warns, warning.New(pkg, err.Error()))
 		} else {
 			deps = append(deps, l)
 		}
 	}
-	return deps, nil
+	return deps, warns, nil
 }
 func (n *npmDeper) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "package.json") != -1
