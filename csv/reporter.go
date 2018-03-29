@@ -2,18 +2,21 @@ package csv
 
 import (
 	encCSV "encoding/csv"
-	"github.com/senseyeio/diligent"
 	"os"
+
+	"github.com/senseyeio/diligent"
 )
 
 type csv struct {
 	filePath string
 }
 
+// NewReporter returns a Reporter which outputs the discovered licenses to a CSV file
 func NewReporter(filePath string) diligent.Reporter {
 	return &csv{filePath}
 }
 
+// Report outputs the dependencies and their licenses to a CSV file
 func (c *csv) Report(deps []diligent.Dep) error {
 	f, err := os.Create(c.filePath)
 	if err != nil {

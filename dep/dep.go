@@ -19,14 +19,17 @@ type lock struct {
 
 type dep struct{}
 
+// New returns a Deper capable of handling dep manifest files
 func New() diligent.Deper {
 	return &dep{}
 }
 
+// Name returns "dep"
 func (d *dep) Name() string {
 	return "dep"
 }
 
+// Dependencies returns the licenses of the go packages defined within the dep manifest
 func (d *dep) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
 	var l lock
 	err := toml.Unmarshal(file, &l)
@@ -50,6 +53,7 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, err
 	return deps, warns, nil
 }
 
+// IsCompatible returns true if the filename is Gopkg.lock
 func (d *dep) IsCompatible(filename string, fileContents []byte) bool {
 	return strings.Index(filename, "Gopkg.lock") != -1
 }
