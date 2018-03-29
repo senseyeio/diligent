@@ -63,3 +63,13 @@ Run the resulting binary as follows:
 ```
 dil {file path}
 ```
+
+## Exit codes
+
+64 = Failed to determine licenses of one or more dependencies, however, dependencies which were successfully handled were acceptable
+65 = Failed to output
+66 = Failed to load provided file
+67 = Fatal error when trying to determine licenses
+68 = Discovered licenses do not match provided whitelist
+69 = Could not process provided file
+70 = The whitelist provided was invalid

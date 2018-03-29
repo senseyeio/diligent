@@ -2,26 +2,29 @@ package main
 
 import (
 	"github.com/senseyeio/diligent"
-	"io/ioutil"
-	"log"
+	"os"
 )
 
 func runDep(deper diligent.Deper, reper diligent.Reporter, filePath string) {
-	fileBytes, err := ioutil.ReadFile(filePath)
+	fileBytes := mustReadFile(filePath)
+	deps, warnings, err := deper.Dependencies(fileBytes)
 	if err != nil {
-		log.Fatal(err.Error())
+		fatal(67, err.Error())
 	}
 
-	deps, err := deper.Dependencies(fileBytes)
-	if err != nil {
-		log.Fatal(err.Error())
+	for _, w := range warnings {
+		warning(w.Warning())
 	}
 
 	if err = reper.Report(deps); err != nil {
-		log.Fatal(err.Error())
+		fatal(65, err.Error())
 	}
 
 	if err = validateDependencies(deps); err != nil {
-		log.Fatal(err.Error())
+		fatal(68, err.Error())
+	}
+
+	if len(warnings) > 0 {
+		os.Exit(64)
 	}
 }
