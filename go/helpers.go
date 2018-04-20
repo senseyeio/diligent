@@ -55,7 +55,10 @@ func getLicenseFromGithub(pkg string) (l diligent.License, err error) {
 
 func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
 	cmd := exec.Command("go", "get", pkg)
-	cmd.Run()
+	err := cmd.Run()
+	if err != nil {
+		return diligent.License{}, err
+	}
 
 	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), pkg))
 	if err != nil {
