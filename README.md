@@ -23,9 +23,9 @@ The following command demonstrates how to use docker to run diligent:
 ```
 docker run -v {location of file}:/dep senseyeio/diligent {file name}
 ```
-For example, if you had a node application at `~/app` which contained a `package.json` file at `~/app/package.json`, you would run the following command:
+For example, if you had a node application at `/app` which contained a `package.json` file at `/app/package.json`, you would run the following command:
 ```
-docker run -v ~/app:/dep senseyeio/diligent package.json
+docker run -v /app:/dep senseyeio/diligent package.json
 ```
 Using diligent without docker is detailed later in the readme.
 
@@ -39,14 +39,20 @@ For example, the following would whitelist all permissive licenses and in additi
 docker run -v {location of file}:/dep senseyeio/diligent -w GPL-3.0 -w permissive {file name}
 ```
 
+If you are happy accepting any licenses, you can use the `all` option:
+```
+docker run -v {location of file}:/dep senseyeio/diligent -w all {file name}
+```
+
 To see what licenses you are whitelisting you can call the `whitelist` command:
 ```
 docker run senseyeio/diligent -w GPL-3.0 -w permissive whitelist
 ```
 
-If licenses are found which do not match the specified whitelist, the application will return a non zero exit code.
+If licenses are found which do not match the specified whitelist, the application will return a non zero exit code (see exit code section below).
 This is compatible with most CI solutions and can be used to stop builds if incompatible licenses are discovered.
-If no `-w` flags are defined, it is assumed that all licenses are permitted.
+
+If no `-w` flags are defined, diligent will always return a non zero exit code.
 
 ## Running Locally
 
