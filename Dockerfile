@@ -1,7 +1,7 @@
 FROM golang:alpine
 
 VOLUME ["/dep"]
-ENTRYPOINT ["/go/bin/dil"]
+ENTRYPOINT ["/go/bin/diligent"]
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
@@ -9,7 +9,7 @@ RUN apk update && apk upgrade && \
 WORKDIR /go/src/github.com/senseyeio/diligent
 COPY . .
 
-RUN go install github.com/senseyeio/diligent/cmd/dil
+RUN go install github.com/senseyeio/diligent/cmd/diligent
 
 WORKDIR /dep
 

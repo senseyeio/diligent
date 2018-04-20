@@ -62,12 +62,12 @@ The following requirements need to be satisfied when running locally:
 
 The following assumes `$GOPATH/bin` is within your `PATH`:
 ```
-go install github.com/senseyeio/diligent/cmd/dil
+go install github.com/senseyeio/diligent/cmd/diligent
 ```
 
 Run the resulting binary as follows:
 ```
-dil {file path}
+diligent {file path}
 ```
 
 ## Exit codes

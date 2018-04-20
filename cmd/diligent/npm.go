@@ -13,7 +13,7 @@ var (
 var npmCmd = &cobra.Command{
 	Use:   "npm [filePath]",
 	Short: "Exposes NPM specific options",
-	Long: `The NPM command is the same as the dil command, but it exposes additional NPM options.
+	Long: `The NPM command is the same as the diligent command, but it exposes additional NPM options.
 Can only be used with package.json files`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

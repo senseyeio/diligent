@@ -13,7 +13,7 @@ var (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "dil [filePath]",
+	Use:   "diligent [filePath]",
 	Short: "Get the licenses associated with your software dependencies",
 	Long:  `Diligent is a CLI tool which determines the licenses associated with your software dependencies`,
 	Args:  cobra.MinimumNArgs(1),
