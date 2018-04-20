@@ -38,7 +38,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize()
 	RootCmd.PersistentFlags().StringVar(&csvFilePath, "csv", "", "Writes CSV to the provided file path")
-	RootCmd.PersistentFlags().StringSliceVarP(&licenseWhitelist, "whitelist", "w", nil, "Specify licenses compatible with your software. If licenses are found which are not in your whitelist, the command will return with a non zero exit code. Whitelisting license identifiers or categories of licenses is possible, the following categories are supported: 'permissive', 'copyleft', 'copyleft-limited', 'free-restricted', 'proprietary-free', 'public-domain'. See the readme for more details.")
+	RootCmd.PersistentFlags().StringSliceVarP(&licenseWhitelist, "whitelist", "w", nil, "Specify licenses compatible with your software. If licenses are found which are not in your whitelist, the command will return with a non zero exit code. Whitelisting license identifiers or categories of licenses is possible, the following categories are supported: 'all', 'permissive', 'copyleft', 'copyleft-limited', 'free-restricted', 'proprietary-free', 'public-domain'. See the readme for more details.")
 }
 
 func getReporter() diligent.Reporter {
