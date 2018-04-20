@@ -2,10 +2,7 @@ package govendor
 
 import (
 	"encoding/json"
-	"strings"
-
 	"github.com/senseyeio/diligent"
-	"github.com/senseyeio/diligent/go"
 	"github.com/senseyeio/diligent/warning"
 )
 
@@ -18,11 +15,17 @@ type vendor struct {
 	Packages []pkg `json:"package"`
 }
 
-type govendor struct{}
+type govendor struct{
+	lg  GoLicenseGetter
+}
+
+type GoLicenseGetter interface {
+	GetLicense(packagePath string) (diligent.License, error)
+}
 
 // New returns a Deper capable of handling govendor manifest files
-func New() diligent.Deper {
-	return &govendor{}
+func New(lg GoLicenseGetter) diligent.Deper {
+	return &govendor{lg}
 }
 
 // Name returns "govendor"
@@ -42,7 +45,7 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 	warns := make([]diligent.Warning, 0, len(vendorFile.Packages))
 	for _, pkg := range vendorFile.Packages {
 		pkgPath := pkg.Path
-		l, err := _go.GetLicense(pkgPath)
+		l, err := g.lg.GetLicense(pkgPath)
 		if err != nil {
 			warns = append(warns, warning.New(pkgPath, err.Error()))
 		} else {
@@ -57,5 +60,5 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 
 // IsCompatible returns true if the filename is vendor.json
 func (g *govendor) IsCompatible(filename string, fileContents []byte) bool {
-	return strings.Index(filename, "vendor.json") != -1
+	return filename == "vendor.json"
 }

@@ -12,7 +12,7 @@ import (
 
 var depers = []diligent.Deper{
 	npm.New(),
-	govendor.New(),
+	govendor.New(_go.NewLicenseGetter()),
 	dep.New(_go.NewLicenseGetter()),
 }
 

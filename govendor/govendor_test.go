@@ -1,12 +1,12 @@
-package dep_test
+package govendor_test
 
 import (
-	"testing"
-	"github.com/senseyeio/diligent/dep"
-	"github.com/senseyeio/diligent"
-	"reflect"
-	"errors"
-	"github.com/senseyeio/diligent/warning"
+"testing"
+"github.com/senseyeio/diligent"
+"reflect"
+"errors"
+"github.com/senseyeio/diligent/warning"
+	"github.com/senseyeio/diligent/govendor"
 )
 
 type licenseGetterResponse struct {
@@ -36,9 +36,9 @@ func (mlg *mockLicenseGetter) GetLicense(packagePath string) (diligent.License, 
 
 func TestName(t *testing.T) {
 	mockLG := newMockLicenseGetter(t, map[string]licenseGetterResponse{})
-	target := dep.New(mockLG)
-	if target.Name() != "dep" {
-		t.Error("expected 'dep'")
+	target := govendor.New(mockLG)
+	if target.Name() != "govendor" {
+		t.Error("expected 'govendor'")
 	}
 }
 
@@ -47,19 +47,19 @@ var compatibleTests = []struct {
 	fileContents []byte
 	out bool
 }{
-	{"Gopkg.lock", []byte{}, true},
-	{"Gopkg.lock.old", []byte{}, false},
-	{"gopkg.lock", []byte{}, false},
-	{"Gopkg.toml", []byte{}, false},
+	{"vendor.json", []byte{}, true},
+	{"vendor.json.new", []byte{}, false},
+	{"Vendor.json", []byte{}, false},
+	{"vendor.lock", []byte{}, false},
 	{"package.json", []byte{}, false},
-	{"random-Gopkg.lock", []byte{}, false},
+	{"random-vendor.json", []byte{}, false},
 }
 
 func TestIsCompatible(t *testing.T) {
 	for _, tt := range compatibleTests {
 		t.Run(tt.in, func(t *testing.T) {
 			mockLG := newMockLicenseGetter(t, map[string]licenseGetterResponse{})
-			target := dep.New(mockLG)
+			target := govendor.New(mockLG)
 			compatible := target.IsCompatible(tt.in, tt.fileContents)
 			if compatible != tt.out {
 				t.Errorf("got %v, want %v", compatible, tt.out)
@@ -78,54 +78,64 @@ var depTests = []struct {
 }{{
 	"single dependency",
 	[]byte(`
-[[projects]]
-  name = "github.com/inconshreveable/mousetrap"
-  packages = ["."]
-  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
-  version = "v1.0"
-`),
-  map[string]licenseGetterResponse{
-  	"github.com/inconshreveable/mousetrap": {
-  		err: nil,
-  		license: diligent.License{Identifier:"MIT"},
-	},
-  },
-  []diligent.Dep{{
-  	Name: "github.com/inconshreveable/mousetrap",
-  	License: diligent.License{Identifier:"MIT"},
-  }},
-  []diligent.Warning{},
-  false,
-}, {
-	"multiple dependencies",
-	[]byte(`
-[[projects]]
-  name = "github.com/inconshreveable/mousetrap"
-  packages = ["."]
-  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
-  version = "v1.0"
-
-[[projects]]
-  name = "github.com/pelletier/go-toml"
-  packages = ["."]
-  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
-  version = "v1.1.0"
+{
+	"package": [
+		{
+			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",
+			"path": "github.com/go-logfmt/logfmt",
+			"revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
+			"revisionTime": "2016-11-15T14:25:13Z"
+		}
+	]
+}
 `),
 	map[string]licenseGetterResponse{
-		"github.com/inconshreveable/mousetrap": {
+		"github.com/go-logfmt/logfmt": {
 			err: nil,
 			license: diligent.License{Identifier:"MIT"},
 		},
-		"github.com/pelletier/go-toml": {
+	},
+	[]diligent.Dep{{
+		Name: "github.com/go-logfmt/logfmt",
+		License: diligent.License{Identifier:"MIT"},
+	}},
+	[]diligent.Warning{},
+	false,
+}, {
+	"multiple dependencies",
+	[]byte(`
+{
+	"package": [
+		{
+			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",
+			"path": "github.com/go-logfmt/logfmt",
+			"revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
+			"revisionTime": "2016-11-15T14:25:13Z"
+		},
+		{
+			"checksumSHA1": "j6vhe49MX+dyHR9rU91P6vMx55o=",
+			"path": "github.com/go-stack/stack",
+			"revision": "817915b46b97fd7bb80e8ab6b69f01a53ac3eebf",
+			"revisionTime": "2017-07-24T01:23:01Z"
+		}
+	]
+}
+`),
+	map[string]licenseGetterResponse{
+		"github.com/go-logfmt/logfmt": {
+			err: nil,
+			license: diligent.License{Identifier:"MIT"},
+		},
+		"github.com/go-stack/stack": {
 			err: nil,
 			license: diligent.License{Identifier:"DOC"},
 		},
 	},
 	[]diligent.Dep{{
-		Name: "github.com/inconshreveable/mousetrap",
+		Name: "github.com/go-logfmt/logfmt",
 		License: diligent.License{Identifier:"MIT"},
 	}, {
-		Name: "github.com/pelletier/go-toml",
+		Name: "github.com/go-stack/stack",
 		License: diligent.License{Identifier:"DOC"},
 	}},
 	[]diligent.Warning{},
@@ -133,72 +143,82 @@ var depTests = []struct {
 }, {
 	"part failure dependencies",
 	[]byte(`
-[[projects]]
-  name = "github.com/inconshreveable/mousetrap"
-  packages = ["."]
-  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
-  version = "v1.0"
-
-[[projects]]
-  name = "github.com/pelletier/go-toml"
-  packages = ["."]
-  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
-  version = "v1.1.0"
+{
+	"package": [
+		{
+			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",
+			"path": "github.com/go-logfmt/logfmt",
+			"revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
+			"revisionTime": "2016-11-15T14:25:13Z"
+		},
+		{
+			"checksumSHA1": "j6vhe49MX+dyHR9rU91P6vMx55o=",
+			"path": "github.com/go-stack/stack",
+			"revision": "817915b46b97fd7bb80e8ab6b69f01a53ac3eebf",
+			"revisionTime": "2017-07-24T01:23:01Z"
+		}
+	]
+}
 `),
 	map[string]licenseGetterResponse{
-		"github.com/inconshreveable/mousetrap": {
+		"github.com/go-logfmt/logfmt": {
 			err: nil,
 			license: diligent.License{Identifier:"MIT"},
 		},
-		"github.com/pelletier/go-toml": {
+		"github.com/go-stack/stack": {
 			err: errors.New("error"),
 			license: diligent.License{},
 		},
 	},
 	[]diligent.Dep{{
-		Name: "github.com/inconshreveable/mousetrap",
+		Name: "github.com/go-logfmt/logfmt",
 		License: diligent.License{Identifier:"MIT"},
 	}},
 	[]diligent.Warning{
-		warning.New("github.com/pelletier/go-toml", "error"),
+		warning.New("github.com/go-stack/stack", "error"),
 	},
 	false,
 }, {
 	"failure getting any dependencies",
 	[]byte(`
-[[projects]]
-  name = "github.com/inconshreveable/mousetrap"
-  packages = ["."]
-  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
-  version = "v1.0"
-
-[[projects]]
-  name = "github.com/pelletier/go-toml"
-  packages = ["."]
-  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
-  version = "v1.1.0"
+{
+	"package": [
+		{
+			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",
+			"path": "github.com/go-logfmt/logfmt",
+			"revision": "390ab7935ee28ec6b286364bba9b4dd6410cb3d5",
+			"revisionTime": "2016-11-15T14:25:13Z"
+		},
+		{
+			"checksumSHA1": "j6vhe49MX+dyHR9rU91P6vMx55o=",
+			"path": "github.com/go-stack/stack",
+			"revision": "817915b46b97fd7bb80e8ab6b69f01a53ac3eebf",
+			"revisionTime": "2017-07-24T01:23:01Z"
+		}
+	]
+}
 `),
 	map[string]licenseGetterResponse{
-		"github.com/inconshreveable/mousetrap": {
+		"github.com/go-logfmt/logfmt": {
 			err: errors.New("eeek"),
 			license: diligent.License{},
 		},
-		"github.com/pelletier/go-toml": {
+		"github.com/go-stack/stack": {
 			err: errors.New("error"),
 			license: diligent.License{},
 		},
 	},
 	[]diligent.Dep{},
 	[]diligent.Warning{
-		warning.New("github.com/inconshreveable/mousetrap", "eeek"),
-		warning.New("github.com/pelletier/go-toml", "error"),
+		warning.New("github.com/go-logfmt/logfmt", "eeek"),
+		warning.New("github.com/go-stack/stack", "error"),
 	},
 	false,
 }, {
-	"toml parsing failure",
+	"json parsing failure",
 	[]byte(`
 {
-	"woops": "it is json"
+	"not valid json""
 }
 `),
 	map[string]licenseGetterResponse{},
@@ -211,7 +231,7 @@ func TestDependencies(t *testing.T) {
 	for _, tt := range depTests {
 		t.Run(tt.description, func(t *testing.T) {
 			mockLG := newMockLicenseGetter(t, tt.getLicenseLUT)
-			target := dep.New(mockLG)
+			target := govendor.New(mockLG)
 			d, w, e := target.Dependencies(tt.in)
 			if (len(d) > 0 || len(tt.depsOut) > 0) && reflect.DeepEqual(d, tt.depsOut) == false {
 				t.Errorf("deps: got %v, want %v", d, tt.depsOut)
