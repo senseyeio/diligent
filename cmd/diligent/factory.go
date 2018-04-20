@@ -5,15 +5,21 @@ import (
 
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/dep"
+	"github.com/senseyeio/diligent/github"
+	"github.com/senseyeio/diligent/go"
 	"github.com/senseyeio/diligent/govendor"
 	"github.com/senseyeio/diligent/npm"
-	"github.com/senseyeio/diligent/go"
+)
+
+var (
+	gh   = github.New("https://api.github.com")
+	goLG = _go.NewLicenseGetter(gh)
 )
 
 var depers = []diligent.Deper{
 	npm.New(),
-	govendor.New(_go.NewLicenseGetter()),
-	dep.New(_go.NewLicenseGetter()),
+	govendor.New(goLG),
+	dep.New(goLG),
 }
 
 func getDeper(filename string, fileContent []byte) (diligent.Deper, error) {
