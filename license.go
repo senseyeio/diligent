@@ -36,9 +36,11 @@ const (
 	// must be kept with the code per organization policy.  The match may be to software, code examples on a website,
 	// published public domain specifications or another type of publication
 	PublicDomain Category = "public-domain"
+	// All includes all the licenses known by Diligent
+	All Category = "all"
 )
 
-var categories = []Category{Permissive, CopyLeft, CopyLeftLimited, FreeRestricted, ProprietaryFree, PublicDomain}
+var categories = []Category{Permissive, CopyLeft, CopyLeftLimited, FreeRestricted, ProprietaryFree, PublicDomain, All}
 
 // Type is either open source of proprietary
 type Type string
@@ -457,7 +459,7 @@ func GetLicenses() []License {
 // GetCategoryLicenses returns all the licenses belonging to a given category
 func GetCategoryLicenses(cat Category) []License {
 	return getLicenses(func(l License) bool {
-		return l.Category == cat
+		return l.Category == cat || cat == All
 	})
 }
 
