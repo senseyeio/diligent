@@ -12,6 +12,16 @@ import (
 	"github.com/senseyeio/diligent/github"
 )
 
+type LicenseGetter struct {}
+
+func NewLicenseGetter() *LicenseGetter {
+	return &LicenseGetter{}
+}
+
+func (lg *LicenseGetter) GetLicense(packagePath string) (diligent.License, error) {
+	return GetLicense(packagePath)
+}
+
 // GetLicense will return the license associated with a given go package
 func GetLicense(packagePath string) (diligent.License, error) {
 	components := strings.Split(packagePath, "/")

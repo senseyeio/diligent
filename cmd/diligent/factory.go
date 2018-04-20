@@ -7,12 +7,13 @@ import (
 	"github.com/senseyeio/diligent/dep"
 	"github.com/senseyeio/diligent/govendor"
 	"github.com/senseyeio/diligent/npm"
+	"github.com/senseyeio/diligent/go"
 )
 
 var depers = []diligent.Deper{
 	npm.New(),
 	govendor.New(),
-	dep.New(),
+	dep.New(_go.NewLicenseGetter()),
 }
 
 func getDeper(filename string, fileContent []byte) (diligent.Deper, error) {

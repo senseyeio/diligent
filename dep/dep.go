@@ -1,11 +1,8 @@
 package dep
 
 import (
-	"strings"
-
 	"github.com/pelletier/go-toml"
 	"github.com/senseyeio/diligent"
-	"github.com/senseyeio/diligent/go"
 	"github.com/senseyeio/diligent/warning"
 )
 
@@ -17,11 +14,17 @@ type lock struct {
 	Projects []lockedProject `toml:"projects"`
 }
 
-type dep struct{}
+type dep struct{
+	lg  GoLicenseGetter
+}
+
+type GoLicenseGetter interface {
+	GetLicense(packagePath string) (diligent.License, error)
+}
 
 // New returns a Deper capable of handling dep manifest files
-func New() diligent.Deper {
-	return &dep{}
+func New(lg GoLicenseGetter) diligent.Deper {
+	return &dep{lg}
 }
 
 // Name returns "dep"
@@ -40,7 +43,7 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, err
 	deps := make([]diligent.Dep, 0, len(l.Projects))
 	warns := make([]diligent.Warning, 0, len(l.Projects))
 	for _, pkg := range l.Projects {
-		l, err := _go.GetLicense(pkg.Name)
+		l, err := d.lg.GetLicense(pkg.Name)
 		if err != nil {
 			warns = append(warns, warning.New(pkg.Name, err.Error()))
 		} else {
@@ -55,5 +58,5 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, err
 
 // IsCompatible returns true if the filename is Gopkg.lock
 func (d *dep) IsCompatible(filename string, fileContents []byte) bool {
-	return strings.Index(filename, "Gopkg.lock") != -1
+	return filename == "Gopkg.lock"
 }
