@@ -6,7 +6,7 @@ test:
 .PHONY: cover
 cover:
 	docker build -t test --target=src .
-	docker run --rm -v `pwd`:/test-results test go test -v -covermode count -coverprofile /test-results/coverage.coverprofile ./... --tags=integration
+	docker run --rm -v `pwd`:/test-results test go test -v -covermode count -coverpkg ./... -coverprofile /test-results/coverage.coverprofile ./... --tags=integration
 
 .PHONY: coveralls
 coveralls: cover
