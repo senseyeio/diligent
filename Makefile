@@ -11,4 +11,4 @@ cover:
 .PHONY: coveralls
 coveralls: cover
 	gover
-	goveralls -coverprofile gover.coverprofile -service travis-ci -repotoken $COVERALLS_TOKEN
+	goveralls -coverprofile gover.coverprofile -service travis-ci -repotoken $(COVERALLS_TOKEN)
