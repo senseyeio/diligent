@@ -9,11 +9,26 @@ import (
 
 	"github.com/ryanuber/go-license"
 	"github.com/senseyeio/diligent"
-	"github.com/senseyeio/diligent/github"
 )
 
+// LicenseGetter provides methods to retrieve the licenses associated with go packages
+type LicenseGetter struct {
+	webLG WebLicenseGetter
+}
+
+// NewLicenseGetter returns a new instance of LicenseGetter using the provided WebLicenseGetter where possible
+func NewLicenseGetter(webLG WebLicenseGetter) *LicenseGetter {
+	return &LicenseGetter{webLG}
+}
+
+// WebLicenseGetter retrieves license information from an online source
+type WebLicenseGetter interface {
+	IsCompatibleURL(s string) bool
+	GetLicenseFromURL(s string) (diligent.License, error)
+}
+
 // GetLicense will return the license associated with a given go package
-func GetLicense(packagePath string) (diligent.License, error) {
+func (lg *LicenseGetter) GetLicense(packagePath string) (diligent.License, error) {
 	components := strings.Split(packagePath, "/")
 	// in some go vendoring solutions full paths to packages are defined as dependencies
 	// need to look for the base package identifier so github.com/aws/aws-sdk-go/aws becomes github.com/aws/aws-sdk-go
@@ -22,18 +37,18 @@ func GetLicense(packagePath string) (diligent.License, error) {
 	}
 	// try a three component base package, if possible, as it is most common
 	if len(components) >= 3 {
-		l, err := getLicenseForBasePackage(strings.Join(components[:3], "/"))
+		l, err := lg.getLicenseForBasePackage(strings.Join(components[:3], "/"))
 		if err == nil {
 			return l, nil
 		}
 	}
 	// can have libraries with just two components, for example gopkg.in/mgo.v2
-	return getLicenseForBasePackage(strings.Join(components[:2], "/"))
+	return lg.getLicenseForBasePackage(strings.Join(components[:2], "/"))
 }
 
-func getLicenseForBasePackage(pkg string) (diligent.License, error) {
-	if isGithubPackage(pkg) {
-		l, err := getLicenseFromGithub(pkg)
+func (lg *LicenseGetter) getLicenseForBasePackage(pkg string) (diligent.License, error) {
+	if lg.webLG.IsCompatibleURL(fmt.Sprintf("https://%s", pkg)) {
+		l, err := lg.webLG.GetLicenseFromURL(fmt.Sprintf("https://%s", pkg))
 		if err == nil {
 			return l, nil
 		}
@@ -43,14 +58,6 @@ func getLicenseForBasePackage(pkg string) (diligent.License, error) {
 		return l, nil
 	}
 	return diligent.License{}, errors.New("failed to find license")
-}
-
-func isGithubPackage(pkg string) bool {
-	return github.IsGithubURL(fmt.Sprintf("https://%s", pkg))
-}
-
-func getLicenseFromGithub(pkg string) (l diligent.License, err error) {
-	return github.GetLicenseFromURL(fmt.Sprintf("https://%s", pkg))
 }
 
 func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {

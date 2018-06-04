@@ -9,6 +9,8 @@ var (
 	npmDevDeps bool
 )
 
+const npmAPIURL = "https://registry.npmjs.org"
+
 // npmCmd represents the npm command
 var npmCmd = &cobra.Command{
 	Use:   "npm [filePath]",
@@ -17,7 +19,7 @@ var npmCmd = &cobra.Command{
 Can only be used with package.json files`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		npmDeper := npm.NewWithOptions(npm.Config{
+		npmDeper := npm.NewWithOptions(npmAPIURL, npm.Config{
 			DevDependencies: npmDevDeps,
 		})
 		runDep(npmDeper, getReporter(), args[0])

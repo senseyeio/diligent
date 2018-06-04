@@ -1,3 +1,13 @@
-  language: go
-  go:
-    - master
+language: go
+go:
+  - master
+
+before_install:
+  - go get github.com/mattn/goveralls
+
+script:
+  - make coveralls
+
+sudo: required
+services:
+  - docker

@@ -14,7 +14,7 @@ import (
 	"github.com/senseyeio/diligent/warning"
 )
 
-type packageJson struct {
+type packageJSON struct {
 	Deps    map[string]string `json:"dependencies"`
 	DevDeps map[string]string `json:"devDependencies"`
 }
@@ -25,6 +25,7 @@ type npmPackage struct {
 
 type npmDeper struct {
 	config Config
+	url    string
 }
 
 // Config allows default options to be altered
@@ -34,13 +35,13 @@ type Config struct {
 }
 
 // New returns a Deper capable of dealing with package.json manifest files
-func New() diligent.Deper {
-	return NewWithOptions(Config{})
+func New(url string) diligent.Deper {
+	return NewWithOptions(url, Config{})
 }
 
 // NewWithOptions is identical to New but allows the default options to be overridden
-func NewWithOptions(c Config) diligent.Deper {
-	return &npmDeper{c}
+func NewWithOptions(url string, c Config) diligent.Deper {
+	return &npmDeper{c, url}
 }
 
 // Name returns "npm"
@@ -56,7 +57,7 @@ func mergeMaps(to map[string]string, from map[string]string) {
 
 // Dependencies returns the licenses associated with the NPM dependencies
 func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, error) {
-	var pkg packageJson
+	var pkg packageJSON
 	err := json.Unmarshal(file, &pkg)
 	if err != nil {
 		return nil, nil, err
@@ -71,7 +72,7 @@ func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 	deps := make([]diligent.Dep, 0, len(licensesToGet))
 	warns := make([]diligent.Warning, 0, len(licensesToGet))
 	for pkg, version := range licensesToGet {
-		l, err := getNPMLicense(pkg, version)
+		l, err := n.getNPMLicense(pkg, version)
 		if err != nil {
 			warns = append(warns, warning.New(pkg, err.Error()))
 		} else {
@@ -83,7 +84,7 @@ func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 
 // IsCompatible returns true if the filename is package.json
 func (n *npmDeper) IsCompatible(filename string, fileContents []byte) bool {
-	return strings.Index(filename, "package.json") != -1
+	return filename == "package.json"
 }
 
 func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
@@ -92,6 +93,9 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 		return diligent.Dep{}, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return diligent.Dep{}, fmt.Errorf("requested failed with status %v", resp.StatusCode)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -101,7 +105,7 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 	var packageInfo npmPackage
 	err = json.Unmarshal(body, &packageInfo)
 	if err != nil {
-		return diligent.Dep{}, err
+		return diligent.Dep{}, errors.New("parsing NPM response failed - invalid JSON")
 	}
 
 	if packageInfo.License == nil {
@@ -119,8 +123,8 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 	}, nil
 }
 
-func getNPMLicense(pkgName, version string) (diligent.Dep, error) {
-	npmURL := fmt.Sprintf("https://registry.npmjs.org/%s/%s", strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
+func (n *npmDeper) getNPMLicense(pkgName, version string) (diligent.Dep, error) {
+	npmURL := fmt.Sprintf("%s/%s/%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
 	dep, err := getNPMLicenseFromURL(pkgName, npmURL)
 	if err == nil {
 		return dep, err
@@ -129,7 +133,7 @@ func getNPMLicense(pkgName, version string) (diligent.Dep, error) {
 	// like https://registry.npmjs.org/@angular%2Fupgrade/4.4.5 don't work
 	// but https://registry.npmjs.org/@angular%2Fupgrade/=4.4.5 do
 	// lets try that, if it succeeds great, if not, return the original results
-	npmURL = fmt.Sprintf("https://registry.npmjs.org/%s/=%s", strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
+	npmURL = fmt.Sprintf("%s/%s/=%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
 	if dep2, err2 := getNPMLicenseFromURL(pkgName, npmURL); err2 == nil {
 		return dep2, err2
 	}

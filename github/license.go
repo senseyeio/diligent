@@ -11,6 +11,16 @@ import (
 	"github.com/senseyeio/diligent"
 )
 
+// Github houses a variety of methods associated with retrieving license information from github
+type Github struct {
+	url string
+}
+
+// New returns an instance of Github pointing at the provided API URL
+func New(apiURL string) *Github {
+	return &Github{apiURL}
+}
+
 var pathComponentsRegex = regexp.MustCompile(`\/([^/]*)`)
 
 type licenseResponse struct {
@@ -39,23 +49,23 @@ func getOwnerAndRepoFromURL(s string) (owner, repo string, err error) {
 }
 
 // IsGithubURL will return true if the provided string is a github repo URL
-func IsGithubURL(s string) bool {
+func (g *Github) IsCompatibleURL(s string) bool {
 	_, _, err := getOwnerAndRepoFromURL(s)
 	return err == nil
 }
 
 // GetLicenseFromURL will attempt to get the license associated with a github repo
-func GetLicenseFromURL(s string) (diligent.License, error) {
+func (g *Github) GetLicenseFromURL(s string) (diligent.License, error) {
 	owner, repo, err := getOwnerAndRepoFromURL(s)
 	if err != nil {
 		return diligent.License{}, err
 	}
-	return GetLicense(owner, repo)
+	return g.GetLicense(owner, repo)
 }
 
 // GetLicense will attempt to get the license associated with a repository identified by its owner and name
-func GetLicense(owner, repo string) (diligent.License, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/license", url.PathEscape(owner), url.PathEscape(repo))
+func (g *Github) GetLicense(owner, repo string) (diligent.License, error) {
+	url := fmt.Sprintf("%s/repos/%s/%s/license", g.url, url.PathEscape(owner), url.PathEscape(repo))
 	resp, err := http.Get(url)
 	if err != nil {
 		return diligent.License{}, err
