@@ -124,18 +124,6 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 }
 
 func (n *npmDeper) getNPMLicense(pkgName, version string) (diligent.Dep, error) {
-	npmURL := fmt.Sprintf("%s/%s/%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
-	dep, err := getNPMLicenseFromURL(pkgName, npmURL)
-	if err == nil {
-		return dep, err
-	}
-	// it seems for scoped packages (e.g. @angular/router) URLs with exact versions
-	// like https://registry.npmjs.org/@angular%2Fupgrade/4.4.5 don't work
-	// but https://registry.npmjs.org/@angular%2Fupgrade/=4.4.5 do
-	// lets try that, if it succeeds great, if not, return the original results
-	npmURL = fmt.Sprintf("%s/%s/=%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
-	if dep2, err2 := getNPMLicenseFromURL(pkgName, npmURL); err2 == nil {
-		return dep2, err2
-	}
-	return dep, err
+	npmURL := fmt.Sprintf("%s/%s?version=%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
+	return getNPMLicenseFromURL(pkgName, npmURL)
 }

@@ -10,6 +10,8 @@ import (
 
 	"sort"
 
+	"net/url"
+
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/npm"
 	"github.com/senseyeio/diligent/warning"
@@ -48,6 +50,9 @@ func TestIsCompatible(t *testing.T) {
 }
 
 func TestDependencies(t *testing.T) {
+	pathAndQuery := func(url *url.URL) string {
+		return url.Path + "?" + url.RawQuery
+	}
 	cases := []struct {
 		description string
 		config      npm.Config
@@ -73,7 +78,7 @@ func TestDependencies(t *testing.T) {
 			if r.Method != "GET" {
 				t.Errorf("expected GET got %s", r.Method)
 			}
-			if r.URL.Path != "/d3/5.0.0" {
+			if pathAndQuery(r.URL) != "/d3?version=5.0.0" {
 				t.Errorf("unexpected path %s", r.URL.Path)
 			}
 			w.WriteHeader(http.StatusOK)
@@ -90,21 +95,21 @@ func TestDependencies(t *testing.T) {
 		[]byte(`
 			{
 				"dependencies": {
-					"d3": "5.0.0",
+					"d3": "^5.0.0",
 					"cypress": "2.1.0"
 				}
 			}
 		`),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.URL.Path {
-			case "/d3/5.0.0":
+			switch pathAndQuery(r.URL) {
+			case "/d3?version=%5E5.0.0":
 				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("{\"license\":\"GPL-3.0\"}"))
-			case "/cypress/2.1.0":
+			case "/cypress?version=2.1.0":
 				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("{\"license\":\"MIT\"}"))
 			default:
-				t.Errorf("unexpected path %s", r.URL.Path)
+				t.Errorf("unexpected path %s", pathAndQuery(r.URL))
 			}
 		}),
 		map[string]string{
@@ -119,21 +124,21 @@ func TestDependencies(t *testing.T) {
 		[]byte(`
 			{
 				"dependencies": {
-					"d3": "5.0.0",
+					"d3": "~5.0.0",
 					"cypress": "2.1.0"
 				}
 			}
 		`),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.URL.Path {
-			case "/d3/5.0.0":
+			switch pathAndQuery(r.URL) {
+			case "/d3?version=~5.0.0":
 				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("{\"license\":\"GPL-3.0\"}"))
-			case "/cypress/2.1.0", "/cypress/=2.1.0":
+			case "/cypress?version=2.1.0":
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("{\"error\":\"failed\"}"))
 			default:
-				t.Errorf("unexpected path %s", r.URL.Path)
+				t.Errorf("unexpected path %s", pathAndQuery(r.URL))
 			}
 		}),
 		map[string]string{
@@ -155,48 +160,21 @@ func TestDependencies(t *testing.T) {
 			}
 		`),
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.URL.Path {
-			case "/d3/5.0.0", "/d3/=5.0.0":
+			switch pathAndQuery(r.URL) {
+			case "/d3?version=5.0.0":
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("{\"error\":\"failed\"}"))
-			case "/cypress/2.1.0", "/cypress/=2.1.0":
+			case "/cypress?version=2.1.0":
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("{\"error\":\"failed\"}"))
 			default:
-				t.Errorf("unexpected path %s", r.URL.Path)
+				t.Errorf("unexpected path %s", pathAndQuery(r.URL))
 			}
 		}),
 		map[string]string{},
 		[]diligent.Warning{
 			warning.New("d3", "requested failed with status 500"),
 			warning.New("cypress", "requested failed with status 500")},
-		false,
-	}, {
-		"should fall back to using '=version' if 'version' fails",
-		npm.Config{},
-		[]byte(`
-			{
-				"dependencies": {
-					"@angular/router": "1.2.3"
-				}
-			}
-		`),
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			switch r.URL.Path {
-			case "/@angular/router/1.2.3":
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("{\"error\":\"failed\"}"))
-			case "/@angular/router/=1.2.3":
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("{\"license\":\"GPL-3.0\"}"))
-			default:
-				t.Errorf("unexpected path %s", r.URL.Path)
-			}
-		}),
-		map[string]string{
-			"@angular/router": "GPL-3.0",
-		},
-		[]diligent.Warning{},
 		false,
 	}, {
 		"should be capable of including devDependencies",
@@ -215,8 +193,8 @@ func TestDependencies(t *testing.T) {
 			if r.Method != "GET" {
 				t.Errorf("expected GET got %s", r.Method)
 			}
-			if r.URL.Path != "/d3/5.0.0" && r.URL.Path != "/cypress/2.1.0" {
-				t.Errorf("unexpected path %s", r.URL.Path)
+			if pathAndQuery(r.URL) != "/d3?version=5.0.0" && pathAndQuery(r.URL) != "/cypress?version=2.1.0" {
+				t.Errorf("unexpected path %s", pathAndQuery(r.URL))
 			}
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("{\"license\":\"MIT\"}"))
