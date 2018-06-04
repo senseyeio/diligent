@@ -30,3 +30,9 @@ type DepsByName []Dep
 func (d DepsByName) Len() int           { return len(d) }
 func (d DepsByName) Swap(i, j int)      { d[i], d[j] = d[j], d[i] }
 func (d DepsByName) Less(i, j int) bool { return d[i].Name < d[j].Name }
+
+type Warnings []Warning
+
+func (d Warnings) Len() int           { return len(d) }
+func (d Warnings) Swap(i, j int)      { d[i], d[j] = d[j], d[i] }
+func (d Warnings) Less(i, j int) bool { return d[i].Warning() < d[j].Warning() }
