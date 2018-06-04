@@ -1,3 +1,10 @@
-  language: go
-  go:
-    - master
+language: go
+go:
+  - master
+
+before_install:
+  - go get github.com/mattn/goveralls
+  - go get github.com/modocache/gover
+
+script:
+  - make coveralls
