@@ -290,8 +290,12 @@ func TestDependencies(t *testing.T) {
 					t.Errorf("deps: got %+v, want %+v", d, expectedDeps)
 				}
 			}
-			if (len(w) > 0 || len(tt.warnsOut) > 0) && reflect.DeepEqual(w, tt.warnsOut) == false {
-				t.Errorf("warnings: got %+v, want %+v", w, tt.warnsOut)
+			if len(w) > 0 || len(tt.warnsOut) > 0 {
+				sort.Sort(diligent.Warnings(w))
+				sort.Sort(diligent.Warnings(tt.warnsOut))
+				if reflect.DeepEqual(w, tt.warnsOut) == false {
+					t.Errorf("warnings: got %+v, want %+v", w, tt.warnsOut)
+				}
 			}
 			isErr := e != nil
 			if tt.errOut != isErr {
