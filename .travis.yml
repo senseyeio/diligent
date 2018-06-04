@@ -8,3 +8,7 @@ before_install:
 
 script:
   - make coveralls
+
+sudo: required
+services:
+  - docker
