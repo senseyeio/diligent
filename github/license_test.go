@@ -55,8 +55,8 @@ func TestGetLicenseFromURL(t *testing.T) {
 			if r.URL.Path != "/repos/senseyeio/spaniel/license" {
 				t.Errorf("unexpected path %s", r.URL.Path)
 			}
-			w.Write([]byte("{\"license\":{\"spdx_id\":\"MIT\"}}"))
 			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("{\"license\":{\"spdx_id\":\"MIT\"}}"))
 		}),
 		"MIT",
 		false,
@@ -80,8 +80,8 @@ func TestGetLicenseFromURL(t *testing.T) {
 		"should fail if github returns unexpected body",
 		"https://github.com/senseyeio/spaniel",
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("{\"license\":{\"noID\":\"it's missing\"}}"))
 			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("{\"license\":{\"noID\":\"it's missing\"}}"))
 		}),
 		"",
 		true,
@@ -89,8 +89,8 @@ func TestGetLicenseFromURL(t *testing.T) {
 		"should fail if github returns non json body",
 		"https://github.com/senseyeio/spaniel",
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("{{"))
 			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("{{"))
 		}),
 		"",
 		true,
@@ -98,8 +98,8 @@ func TestGetLicenseFromURL(t *testing.T) {
 		"should fail if github returns an unknown license ID",
 		"https://github.com/senseyeio/spaniel",
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("{\"license\":{\"spdx_id\":\"woowoo\"}}"))
 			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("{\"license\":{\"spdx_id\":\"woowoo\"}}"))
 		}),
 		"",
 		true,

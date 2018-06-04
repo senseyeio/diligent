@@ -17,7 +17,7 @@ var (
 )
 
 var depers = []diligent.Deper{
-	npm.New(),
+	npm.New(npmAPIURL),
 	govendor.New(goLG),
 	dep.New(goLG),
 }

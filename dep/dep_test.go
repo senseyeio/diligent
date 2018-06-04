@@ -1,28 +1,29 @@
 package dep_test
 
 import (
-	"testing"
-	"github.com/senseyeio/diligent/dep"
-	"github.com/senseyeio/diligent"
-	"reflect"
 	"errors"
+	"reflect"
+	"testing"
+
+	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/dep"
 	"github.com/senseyeio/diligent/warning"
 )
 
 type licenseGetterResponse struct {
 	license diligent.License
-	err error
+	err     error
 }
 
 type mockLicenseGetter struct {
 	responses map[string]licenseGetterResponse
-	t *testing.T
+	t         *testing.T
 }
 
 func newMockLicenseGetter(t *testing.T, responses map[string]licenseGetterResponse) *mockLicenseGetter {
 	return &mockLicenseGetter{
 		responses: responses,
-		t: t,
+		t:         t,
 	}
 }
 
@@ -43,9 +44,9 @@ func TestName(t *testing.T) {
 }
 
 var compatibleTests = []struct {
-	in string
+	in           string
 	fileContents []byte
-	out bool
+	out          bool
 }{
 	{"Gopkg.lock", []byte{}, true},
 	{"Gopkg.lock.old", []byte{}, false},
@@ -69,12 +70,12 @@ func TestIsCompatible(t *testing.T) {
 }
 
 var depTests = []struct {
-	description string
-	in []byte
+	description   string
+	in            []byte
 	getLicenseLUT map[string]licenseGetterResponse
-	depsOut []diligent.Dep
-	warnsOut []diligent.Warning
-	errOut bool
+	depsOut       []diligent.Dep
+	warnsOut      []diligent.Warning
+	errOut        bool
 }{{
 	"single dependency",
 	[]byte(`
@@ -84,18 +85,18 @@ var depTests = []struct {
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 `),
-  map[string]licenseGetterResponse{
-  	"github.com/inconshreveable/mousetrap": {
-  		err: nil,
-  		license: diligent.License{Identifier:"MIT"},
+	map[string]licenseGetterResponse{
+		"github.com/inconshreveable/mousetrap": {
+			err:     nil,
+			license: diligent.License{Identifier: "MIT"},
+		},
 	},
-  },
-  []diligent.Dep{{
-  	Name: "github.com/inconshreveable/mousetrap",
-  	License: diligent.License{Identifier:"MIT"},
-  }},
-  []diligent.Warning{},
-  false,
+	[]diligent.Dep{{
+		Name:    "github.com/inconshreveable/mousetrap",
+		License: diligent.License{Identifier: "MIT"},
+	}},
+	[]diligent.Warning{},
+	false,
 }, {
 	"multiple dependencies",
 	[]byte(`
@@ -113,20 +114,20 @@ var depTests = []struct {
 `),
 	map[string]licenseGetterResponse{
 		"github.com/inconshreveable/mousetrap": {
-			err: nil,
-			license: diligent.License{Identifier:"MIT"},
+			err:     nil,
+			license: diligent.License{Identifier: "MIT"},
 		},
 		"github.com/pelletier/go-toml": {
-			err: nil,
-			license: diligent.License{Identifier:"DOC"},
+			err:     nil,
+			license: diligent.License{Identifier: "DOC"},
 		},
 	},
 	[]diligent.Dep{{
-		Name: "github.com/inconshreveable/mousetrap",
-		License: diligent.License{Identifier:"MIT"},
+		Name:    "github.com/inconshreveable/mousetrap",
+		License: diligent.License{Identifier: "MIT"},
 	}, {
-		Name: "github.com/pelletier/go-toml",
-		License: diligent.License{Identifier:"DOC"},
+		Name:    "github.com/pelletier/go-toml",
+		License: diligent.License{Identifier: "DOC"},
 	}},
 	[]diligent.Warning{},
 	false,
@@ -147,17 +148,17 @@ var depTests = []struct {
 `),
 	map[string]licenseGetterResponse{
 		"github.com/inconshreveable/mousetrap": {
-			err: nil,
-			license: diligent.License{Identifier:"MIT"},
+			err:     nil,
+			license: diligent.License{Identifier: "MIT"},
 		},
 		"github.com/pelletier/go-toml": {
-			err: errors.New("error"),
+			err:     errors.New("error"),
 			license: diligent.License{},
 		},
 	},
 	[]diligent.Dep{{
-		Name: "github.com/inconshreveable/mousetrap",
-		License: diligent.License{Identifier:"MIT"},
+		Name:    "github.com/inconshreveable/mousetrap",
+		License: diligent.License{Identifier: "MIT"},
 	}},
 	[]diligent.Warning{
 		warning.New("github.com/pelletier/go-toml", "error"),
@@ -180,11 +181,11 @@ var depTests = []struct {
 `),
 	map[string]licenseGetterResponse{
 		"github.com/inconshreveable/mousetrap": {
-			err: errors.New("eeek"),
+			err:     errors.New("eeek"),
 			license: diligent.License{},
 		},
 		"github.com/pelletier/go-toml": {
-			err: errors.New("error"),
+			err:     errors.New("error"),
 			license: diligent.License{},
 		},
 	},
@@ -216,7 +217,7 @@ func TestDependencies(t *testing.T) {
 			if (len(d) > 0 || len(tt.depsOut) > 0) && reflect.DeepEqual(d, tt.depsOut) == false {
 				t.Errorf("deps: got %v, want %v", d, tt.depsOut)
 			}
-			if (len(d) > 0 || len(tt.depsOut) > 0) && reflect.DeepEqual(w, tt.warnsOut) == false {
+			if (len(w) > 0 || len(tt.warnsOut) > 0) && reflect.DeepEqual(w, tt.warnsOut) == false {
 				t.Errorf("warnings: got %v, want %v", w, tt.warnsOut)
 			}
 			isErr := e != nil
