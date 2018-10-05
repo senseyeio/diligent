@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"path/filepath"
+
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/dep"
 	"github.com/senseyeio/diligent/github"
@@ -23,9 +25,10 @@ var depers = []diligent.Deper{
 	dep.New(goLG),
 }
 
-func getDeper(filename string, fileContent []byte) (diligent.Deper, error) {
+func getDeper(path string) (diligent.Deper, error) {
+	filename := filepath.Base(path)
 	for _, deper := range depers {
-		if deper.IsCompatible(filename, fileContent) {
+		if deper.IsCompatible(filename) {
 			return deper, nil
 		}
 	}

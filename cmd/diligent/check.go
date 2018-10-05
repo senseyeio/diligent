@@ -6,7 +6,7 @@ import (
 
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
-	Use:   "check [filePath]",
+	Use:   "check [path]",
 	Short: "Ensures the licenses are compatible with your license whitelist",
 	Long:  `Calling check will ensure that the licenses associated with your dependencies are compatible with your license whitelist.`,
 	Args:  cobra.ExactArgs(1),

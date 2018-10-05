@@ -83,7 +83,7 @@ func (n *npmDeper) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 }
 
 // IsCompatible returns true if the filename is package.json
-func (n *npmDeper) IsCompatible(filename string, fileContents []byte) bool {
+func (n *npmDeper) IsCompatible(filename string) bool {
 	return filename == "package.json"
 }
 

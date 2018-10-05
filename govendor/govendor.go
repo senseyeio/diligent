@@ -2,6 +2,7 @@ package govendor
 
 import (
 	"encoding/json"
+
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/warning"
 )
@@ -15,8 +16,8 @@ type vendor struct {
 	Packages []pkg `json:"package"`
 }
 
-type govendor struct{
-	lg  GoLicenseGetter
+type govendor struct {
+	lg GoLicenseGetter
 }
 
 type GoLicenseGetter interface {
@@ -59,6 +60,6 @@ func (g *govendor) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning
 }
 
 // IsCompatible returns true if the filename is vendor.json
-func (g *govendor) IsCompatible(filename string, fileContents []byte) bool {
+func (g *govendor) IsCompatible(filename string) bool {
 	return filename == "vendor.json"
 }

@@ -7,7 +7,7 @@ import (
 
 // lsCmd represents the ls command
 var lsCmd = &cobra.Command{
-	Use:   "ls [filePath]",
+	Use:   "ls [path]",
 	Short: "Lists the licenses associated with your dependencies",
 	Long:  `Calling ls will list the licenses associated with your dependencies.`,
 	Args:  cobra.ExactArgs(1),
