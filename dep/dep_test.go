@@ -44,16 +44,15 @@ func TestName(t *testing.T) {
 }
 
 var compatibleTests = []struct {
-	in           string
-	fileContents []byte
-	out          bool
+	in  string
+	out bool
 }{
-	{"Gopkg.lock", []byte{}, true},
-	{"Gopkg.lock.old", []byte{}, false},
-	{"gopkg.lock", []byte{}, false},
-	{"Gopkg.toml", []byte{}, false},
-	{"package.json", []byte{}, false},
-	{"random-Gopkg.lock", []byte{}, false},
+	{"Gopkg.lock", true},
+	{"Gopkg.lock.old", false},
+	{"gopkg.lock", false},
+	{"Gopkg.toml", false},
+	{"package.json", false},
+	{"random-Gopkg.lock", false},
 }
 
 func TestIsCompatible(t *testing.T) {
@@ -61,7 +60,7 @@ func TestIsCompatible(t *testing.T) {
 		t.Run(tt.in, func(t *testing.T) {
 			mockLG := newMockLicenseGetter(t, map[string]licenseGetterResponse{})
 			target := dep.New(mockLG)
-			compatible := target.IsCompatible(tt.in, tt.fileContents)
+			compatible := target.IsCompatible(tt.in)
 			if compatible != tt.out {
 				t.Errorf("got %v, want %v", compatible, tt.out)
 			}

@@ -26,22 +26,21 @@ func TestName(t *testing.T) {
 
 func TestIsCompatible(t *testing.T) {
 	var cases = []struct {
-		in           string
-		fileContents []byte
-		out          bool
+		in  string
+		out bool
 	}{
-		{"package.json", []byte{}, true},
-		{"package.json.new", []byte{}, false},
-		{"Package.json", []byte{}, false},
-		{"package.lock", []byte{}, false},
-		{"vendor.json", []byte{}, false},
-		{"random-package.json", []byte{}, false},
+		{"package.json", true},
+		{"package.json.new", false},
+		{"Package.json", false},
+		{"package.lock", false},
+		{"vendor.json", false},
+		{"random-package.json", false},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.in, func(t *testing.T) {
 			target := npm.New("")
-			compatible := target.IsCompatible(tt.in, tt.fileContents)
+			compatible := target.IsCompatible(tt.in)
 			if compatible != tt.out {
 				t.Errorf("got %v, want %v", compatible, tt.out)
 			}
