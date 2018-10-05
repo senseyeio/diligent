@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"strings"
 
+	"go/build"
+
 	"github.com/ryanuber/go-license"
 	"github.com/senseyeio/diligent"
 )
@@ -25,6 +27,14 @@ func NewLicenseGetter(webLG WebLicenseGetter) *LicenseGetter {
 type WebLicenseGetter interface {
 	IsCompatibleURL(s string) bool
 	GetLicenseFromURL(s string) (diligent.License, error)
+}
+
+func goPath() string {
+	gopath := os.Getenv("GOPATH")
+	if gopath == "" {
+		gopath = build.Default.GOPATH
+	}
+	return gopath
 }
 
 // GetLicense will return the license associated with a given go package
@@ -67,7 +77,7 @@ func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
 		return diligent.License{}, err
 	}
 
-	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", os.Getenv("GOPATH"), pkg))
+	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", goPath(), pkg))
 	if err != nil {
 		return diligent.License{}, err
 	}
