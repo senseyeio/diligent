@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	gh   = github.New("https://api.github.com")
-	goLG = _go.NewLicenseGetter(gh)
+	gh        = github.New("https://api.github.com")
+	goLG      = _go.NewLicenseGetter(gh)
+	npmAPIURL = "https://registry.npmjs.org"
 )
 
 var depers = []diligent.Deper{

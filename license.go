@@ -472,6 +472,16 @@ func getCategoryFromString(catStr string) *Category {
 	return nil
 }
 
+// GetLicenseIdentifiers returns identifiers for all of the licenses known by Diligent
+func GetLicenseIdentifiers() []string {
+	ll := GetLicenses()
+	out := make([]string, len(ll))
+	for i, l := range ll {
+		out[i] = l.Identifier
+	}
+	return out
+}
+
 // ReplaceCategoriesWithIdentifiers replaces license category names with the identifiers of the licenses belonging
 // to that category. Strings found which are not category names are not touched.
 func ReplaceCategoriesWithIdentifiers(identifiers []string) []string {
