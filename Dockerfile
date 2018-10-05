@@ -1,8 +1,8 @@
-FROM golang:alpine AS src
+FROM golang:1.11.0-alpine3.8 AS src
 
 VOLUME ["/test-results"]
 RUN apk update && apk upgrade && \
-    apk add --no-cache bash git openssh
+    apk add --no-cache bash git openssh gcc libc-dev
 
 WORKDIR /go/src/github.com/senseyeio/diligent
 COPY . .
