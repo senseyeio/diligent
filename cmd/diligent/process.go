@@ -4,6 +4,8 @@ import (
 	"os"
 	"sort"
 
+	"path/filepath"
+
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/csv"
 	"github.com/senseyeio/diligent/pretty"
@@ -19,25 +21,42 @@ func getReporter() diligent.Reporter {
 	return pretty.NewReporter()
 }
 
-func run(args []string) {
-	filePath := args[0]
-	fileBytes := mustReadFile(filePath)
-	deper, err := getDeper(filePath, fileBytes)
+func getFiles(args []string) []string {
+	path := args[0]
+	files := make([]string, 0)
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.Mode().IsRegular() {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
-		fatal(69, err.Error())
+		fatal(66, err.Error())
 	}
-
-	runDep(deper, getSort(sortByLicense), getReporter(), filePath)
+	return files
 }
 
-func runDep(deper diligent.Deper, sorter toSortInterfacer, reporter diligent.Reporter, filePath string) {
-	fileBytes := mustReadFile(filePath)
-	deps, warnings, err := deper.Dependencies(fileBytes)
-	if err != nil {
-		fatal(67, err.Error())
-	}
+func run(args []string) {
+	files := getFiles(args)
 
-	sort.Sort(sorter(deps))
+	deps := make([]diligent.Dep, 0)
+	warnings := make([]diligent.Warning, 0)
+	for _, f := range files {
+		deper, err := getDeper(f)
+		if err != nil {
+			continue
+		}
+		fileBytes := mustReadFile(f)
+		d, w, err := deper.Dependencies(fileBytes)
+		if err != nil {
+			fatal(67, err.Error())
+		}
+		deps = append(deps, d...)
+		warnings = append(warnings, w...)
+	}
 
 	for _, w := range warnings {
 		warning(w.Warning())
@@ -46,7 +65,13 @@ func runDep(deper diligent.Deper, sorter toSortInterfacer, reporter diligent.Rep
 		fatal(67, "did not successfully process any dependencies - see warnings above for details")
 	}
 
-	if err = reporter.Report(deps); err != nil {
+	deps = diligent.Deps(deps).Dedupe()
+
+	sorter := getSort(sortByLicense)
+	sort.Sort(sorter(deps))
+
+	reporter := getReporter()
+	if err := reporter.Report(deps); err != nil {
 		fatal(65, err.Error())
 	}
 

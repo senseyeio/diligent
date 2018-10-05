@@ -21,11 +21,11 @@ The following languages and dependency managers are supported:
 ## Usage
 The following command demonstrates how to use docker to run diligent:
 ```
-docker run -v {location of file}:/dep senseyeio/diligent ls {file name}
+docker run -v {project}:/dep senseyeio/diligent ls {path}
 ```
-For example, if you had a node application at `/app` which contained a `package.json` file at `/app/package.json`, you would run the following command:
+For example, if you had a node application at `/app` which contained a `package.json` file, you would run the following command:
 ```
-docker run -v /app:/dep senseyeio/diligent ls package.json
+docker run -v /app:/dep senseyeio/diligent ls .
 ```
 Using diligent without docker is detailed later in the readme.
 
@@ -37,7 +37,7 @@ To see the identifiers and categories available please look at the [license defi
 
 For example, the following would whitelist all permissive licenses and in addition `GPL-3.0`:
 ```
-docker run -v {location of file}:/dep senseyeio/diligent check -w GPL-3.0 -w permissive {file name}
+docker run -v {project}:/dep senseyeio/diligent check -w GPL-3.0 -w permissive {path}
 ```
 
 If licenses are found which do not match the specified whitelist, the application will return a non zero exit code (see exit code section below).
@@ -63,7 +63,7 @@ go install github.com/senseyeio/diligent/cmd/diligent
 
 Run the resulting binary as follows:
 ```
-diligent {file path}
+diligent {path}
 ```
 
 ## Exit codes

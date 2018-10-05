@@ -14,8 +14,8 @@ type lock struct {
 	Projects []lockedProject `toml:"projects"`
 }
 
-type dep struct{
-	lg  GoLicenseGetter
+type dep struct {
+	lg GoLicenseGetter
 }
 
 type GoLicenseGetter interface {
@@ -57,6 +57,6 @@ func (d *dep) Dependencies(file []byte) ([]diligent.Dep, []diligent.Warning, err
 }
 
 // IsCompatible returns true if the filename is Gopkg.lock
-func (d *dep) IsCompatible(filename string, fileContents []byte) bool {
+func (d *dep) IsCompatible(filename string) bool {
 	return filename == "Gopkg.lock"
 }
