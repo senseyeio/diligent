@@ -14,8 +14,8 @@ import (
 type toSortInterfacer func(deps []diligent.Dep) sort.Interface
 
 func getReporter() diligent.Reporter {
-	if csvFilePath != "" {
-		return csv.NewReporter(csvFilePath)
+	if csvOutput {
+		return csv.NewReporter()
 	}
 
 	return pretty.NewReporter()
@@ -71,7 +71,7 @@ func run(args []string) {
 	sort.Sort(sorter(deps))
 
 	reporter := getReporter()
-	if err := reporter.Report(deps); err != nil {
+	if err := reporter.Report(os.Stdout, deps); err != nil {
 		fatal(65, err.Error())
 	}
 
