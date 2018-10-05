@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/dep"
@@ -29,5 +29,5 @@ func getDeper(filename string, fileContent []byte) (diligent.Deper, error) {
 			return deper, nil
 		}
 	}
-	return nil, errors.New("unknown file")
+	return nil, fmt.Errorf("Diligent does not know how to process '%s' files", filename)
 }
