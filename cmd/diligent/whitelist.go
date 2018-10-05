@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/senseyeio/diligent"
 	"fmt"
-)
 
+	"github.com/senseyeio/diligent"
+	"github.com/spf13/cobra"
+)
 
 // whitelistCmd represents the whitelist command
 var whitelistCmd = &cobra.Command{
@@ -26,4 +26,5 @@ validate your are whitelisting just the licenses you are interested in`,
 
 func init() {
 	RootCmd.AddCommand(whitelistCmd)
+	applyWhitelistFlag(whitelistCmd)
 }

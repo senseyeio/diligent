@@ -1,9 +1,29 @@
 package main
 
 import (
-	"github.com/senseyeio/diligent"
 	"os"
+
+	"github.com/senseyeio/diligent"
+	"github.com/senseyeio/diligent/csv"
+	"github.com/senseyeio/diligent/stdout"
 )
+
+func getReporter() diligent.Reporter {
+	if csvFilePath != "" {
+		return csv.NewReporter(csvFilePath)
+	}
+	return stdout.NewReporter()
+}
+
+func run(args []string) {
+	filePath := args[0]
+	fileBytes := mustReadFile(filePath)
+	deper, err := getDeper(filePath, fileBytes)
+	if err != nil {
+		fatal(69, err.Error())
+	}
+	runDep(deper, getReporter(), filePath)
+}
 
 func runDep(deper diligent.Deper, reporter diligent.Reporter, filePath string) {
 	fileBytes := mustReadFile(filePath)
