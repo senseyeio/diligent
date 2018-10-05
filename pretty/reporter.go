@@ -3,7 +3,6 @@ package pretty
 import (
 	"github.com/senseyeio/diligent"
 	"io"
-	"os"
 	"text/tabwriter"
 )
 
@@ -37,8 +36,8 @@ func writeStrings(w io.Writer, strings ...string) error {
 }
 
 // Report outputs the dependencies and their licenses in tabulated form to stdout
-func (c *pretty) Report(deps []diligent.Dep) error {
-	writer := tabwriter.NewWriter(os.Stdout, minColWidth, tabWidth, padding, padChar, flags)
+func (c *pretty) Report(w io.Writer, deps []diligent.Dep) error {
+	writer := tabwriter.NewWriter(w, minColWidth, tabWidth, padding, padChar, flags)
 
 	for _, d := range deps {
 		err := writeStrings(writer, d.Name, tab, d.License.Name, newline)
