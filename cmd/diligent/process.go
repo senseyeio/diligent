@@ -6,7 +6,7 @@ import (
 
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/csv"
-	"github.com/senseyeio/diligent/stdout"
+	"github.com/senseyeio/diligent/pretty"
 )
 
 type toSortInterfacer func(deps []diligent.Dep) sort.Interface
@@ -15,7 +15,8 @@ func getReporter() diligent.Reporter {
 	if csvFilePath != "" {
 		return csv.NewReporter(csvFilePath)
 	}
-	return stdout.NewReporter()
+
+	return pretty.NewReporter()
 }
 
 func run(args []string) {
