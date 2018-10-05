@@ -4,11 +4,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// lsCmd represents the ls command
-var enforceCmd = &cobra.Command{
-	Use:   "enforce [filePath]",
+// checkCmd represents the check command
+var checkCmd = &cobra.Command{
+	Use:   "check [filePath]",
 	Short: "Ensures the licenses are compatible with your license whitelist",
-	Long:  `Calling enforce will check that the licenses associated with your dependencies are compatible with your license whitelist.`,
+	Long:  `Calling check will ensure that the licenses associated with your dependencies are compatible with your license whitelist.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(licenseWhitelist) == 0 {
@@ -19,7 +19,7 @@ var enforceCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(enforceCmd)
-	applyCommonFlags(enforceCmd)
-	applyWhitelistFlag(enforceCmd)
+	RootCmd.AddCommand(checkCmd)
+	applyCommonFlags(checkCmd)
+	applyWhitelistFlag(checkCmd)
 }

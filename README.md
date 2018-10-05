@@ -31,13 +31,13 @@ Using diligent without docker is detailed later in the readme.
 
 ## Whitelisting
 
-The `enforce` command can check that your depedencies' licenses match a given license whitelist.
+The `check` command can check that your depedencies' licenses match a given license whitelist.
 Whitelisting is possible by specifying license identifiers or categories of licenses.
 To see the identifiers and categories available please look at the [license definitions](https://github.com/senseyeio/diligent/blob/master/license.go).
 
 For example, the following would whitelist all permissive licenses and in addition `GPL-3.0`:
 ```
-docker run -v {location of file}:/dep senseyeio/diligent enforce -w GPL-3.0 -w permissive {file name}
+docker run -v {location of file}:/dep senseyeio/diligent check -w GPL-3.0 -w permissive {file name}
 ```
 
 If licenses are found which do not match the specified whitelist, the application will return a non zero exit code (see exit code section below).
