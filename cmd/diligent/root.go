@@ -9,6 +9,7 @@ var (
 	csvFilePath      string
 	licenseWhitelist []string
 	npmDevDeps       bool
+	sortByLicense    bool
 )
 
 var RootCmd = &cobra.Command{
@@ -29,6 +30,7 @@ func init() {
 func applyCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&npmDevDeps, "npm-dev-deps", "", false, "[NPM] Include developer dependencies")
 	cmd.Flags().StringVar(&csvFilePath, "csv", "", "Writes CSV to the provided file path")
+	cmd.Flags().BoolVarP(&sortByLicense, "license", "l", false, "sorts output by license")
 }
 
 func applyWhitelistFlag(cmd *cobra.Command) {

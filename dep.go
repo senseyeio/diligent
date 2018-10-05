@@ -36,3 +36,15 @@ type Warnings []Warning
 func (d Warnings) Len() int           { return len(d) }
 func (d Warnings) Swap(i, j int)      { d[i], d[j] = d[j], d[i] }
 func (d Warnings) Less(i, j int) bool { return d[i].Warning() < d[j].Warning() }
+
+type DepsByLicense []Dep
+
+func (d DepsByLicense) Len() int { return len(d) }
+func (d DepsByLicense) Swap(i, j int) { d[i], d[j] = d[j], d[i]}
+func (d DepsByLicense) Less(i, j int) bool {
+	if d[i].License.Name == d[j].License.Name {
+		return d[i].Name < d[j].Name
+	}
+
+	return d[i].License.Name < d[j].License.Name
+}
