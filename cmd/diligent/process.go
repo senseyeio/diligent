@@ -49,8 +49,14 @@ func runDep(deper diligent.Deper, sorter toSortInterfacer, reporter diligent.Rep
 		fatal(65, err.Error())
 	}
 
-	if err = validateDependencies(deps); err != nil {
-		fatal(68, err.Error())
+	if errs := validateDependencies(deps); len(errs) > 0 {
+		if len(errs) == 1 {
+			fatal(68, errs[0].Error())
+		}
+		for _, e := range errs {
+			warning(e.Error())
+		}
+		fatal(68, "multiple dependencies are not compliant with your whitelist")
 	}
 
 	if len(warnings) > 0 {
@@ -58,12 +64,11 @@ func runDep(deper diligent.Deper, sorter toSortInterfacer, reporter diligent.Rep
 	}
 }
 
-
 func toLicenseSorter(deps []diligent.Dep) sort.Interface {
 	return diligent.DepsByLicense(deps)
 }
 
-func toNameSorter (deps []diligent.Dep) sort.Interface {
+func toNameSorter(deps []diligent.Dep) sort.Interface {
 	return diligent.DepsByName(deps)
 }
 
