@@ -9,6 +9,8 @@ import (
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/csv"
 	"github.com/senseyeio/diligent/pretty"
+	"io"
+	"fmt"
 )
 
 type toSortInterfacer func(deps []diligent.Dep) sort.Interface
@@ -19,6 +21,23 @@ func getReporter() diligent.Reporter {
 	}
 
 	return pretty.NewReporter()
+}
+
+func withOutputWriter(todo func(w io.Writer) error) error {
+	var w io.Writer
+
+	if outputFilename != "" {
+		file, err := os.Create(outputFilename)
+		if err != nil {
+			return fmt.Errorf("unable to open file '%s' for writing. %v", outputFilename, err)
+		}
+		defer file.Close()
+		w = file
+	} else {
+		w = os.Stdout
+	}
+
+	return todo(w)
 }
 
 func getFiles(args []string) []string {
@@ -69,11 +88,16 @@ func run(args []string) {
 
 	sorter := getSort(sortByLicense)
 	sort.Sort(sorter(deps))
-
 	reporter := getReporter()
-	if err := reporter.Report(os.Stdout, deps); err != nil {
+
+	err := withOutputWriter(func(w io.Writer) error {
+		return reporter.Report(w, deps)
+	})
+
+	if err != nil {
 		fatal(65, err.Error())
 	}
+
 
 	if errs := validateDependencies(deps); len(errs) > 0 {
 		if len(errs) == 1 {

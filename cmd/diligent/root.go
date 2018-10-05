@@ -10,6 +10,7 @@ var (
 	npmDevDeps       bool
 	sortByLicense    bool
 	csvOutput bool
+	outputFilename string
 )
 
 var RootCmd = &cobra.Command{
@@ -31,6 +32,7 @@ func applyCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&npmDevDeps, "npm-dev-deps", "", false, "[NPM] Include developer dependencies")
 	cmd.Flags().BoolVarP(&csvOutput, "csv", "", false,  "Writes the output as comma separated values")
 	cmd.Flags().BoolVarP(&sortByLicense, "license", "l", false, "Sorts output by license")
+	cmd.Flags().StringVarP(&outputFilename, "out", "o", "", "Filename to which output should be written. By default or when blank stdout is used")
 }
 
 func applyWhitelistFlag(cmd *cobra.Command) {

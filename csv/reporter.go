@@ -2,8 +2,9 @@ package csv
 
 import (
 	encCSV "encoding/csv"
-	"github.com/senseyeio/diligent"
 	"io"
+
+	"github.com/senseyeio/diligent"
 )
 
 type csv struct {
