@@ -9,6 +9,7 @@ script:
   - make test
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: make coverall
   on:
