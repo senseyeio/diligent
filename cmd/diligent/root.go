@@ -45,9 +45,9 @@ func applyCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&csvOutput, "csv", "", false, "Writes the output as comma separated values")
 	cmd.Flags().BoolVarP(&sortByLicense, "license", "l", false, "Sorts output by license")
 	cmd.Flags().StringVarP(&outputFilename, "out", "o", "", "Filename to which output should be written. By default or when blank stdout is used")
+	cmd.Flags().StringSliceVarP(&pkgIgnore, "ignore", "i", nil, "Ignore certain packages. Ignored packages will not be reported on or validated against your whitelist. Regular expressions can be used.")
 }
 
 func applyWhitelistFlag(cmd *cobra.Command) {
 	cmd.Flags().StringSliceVarP(&licenseWhitelist, "whitelist", "w", nil, "Specify licenses compatible with your software. If licenses are found which are not in your whitelist, the command will return with a non zero exit code. Whitelisting license identifiers or categories of licenses is possible, the following categories are supported: 'all', 'permissive', 'copyleft', 'copyleft-limited', 'free-restricted', 'proprietary-free', 'public-domain'. See the readme for more details.")
-	cmd.Flags().StringSliceVarP(&pkgIgnore, "ignore", "i", nil, "Ignore certain packages when applying the whitelist validation. Regular expressions can be used.")
 }
