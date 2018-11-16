@@ -11,7 +11,7 @@ script:
 deploy:
   skip_cleanup: true
   provider: script
-  script: make coverall
+  script: make coveralls
   on:
     repo: senseyeio/diligent
     branch: master
