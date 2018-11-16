@@ -71,7 +71,7 @@ func (lg *LicenseGetter) getLicenseForBasePackage(pkg string) (diligent.License,
 }
 
 func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
-	cmd := exec.Command("go", "get", pkg)
+	cmd := exec.Command("go", "get", "-d", fmt.Sprintf("%s/...", pkg))
 	err := cmd.Run()
 	if err != nil {
 		return diligent.License{}, err
