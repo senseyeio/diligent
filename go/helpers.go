@@ -3,14 +3,14 @@ package _go
 import (
 	"errors"
 	"fmt"
+	"go/build"
 	"os"
 	"os/exec"
 	"strings"
 
-	"go/build"
-
-	"github.com/ryanuber/go-license"
 	"github.com/senseyeio/diligent"
+	"gopkg.in/src-d/go-license-detector.v2/licensedb"
+	"gopkg.in/src-d/go-license-detector.v2/licensedb/filer"
 )
 
 // LicenseGetter provides methods to retrieve the licenses associated with go packages
@@ -77,10 +77,23 @@ func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
 		return diligent.License{}, err
 	}
 
-	l, err := license.NewFromDir(fmt.Sprintf("%s/src/%s", goPath(), pkg))
+	dir := fmt.Sprintf("%s/src/%s", goPath(), pkg)
+	filer, err := filer.FromDirectory(dir)
 	if err != nil {
 		return diligent.License{}, err
 	}
-
-	return diligent.GetLicenseFromIdentifier(l.Type)
+	licenses, err := licensedb.Detect(filer)
+	if err != nil {
+		return diligent.License{}, err
+	}
+	maxKey := ""
+	for k, v := range licenses {
+		if maxKey == "" || licenses[maxKey] < v {
+			maxKey = k
+		}
+	}
+	if maxKey == "" {
+		return diligent.License{}, errors.New("could not identify license")
+	}
+	return diligent.GetLicenseFromIdentifier(maxKey)
 }
