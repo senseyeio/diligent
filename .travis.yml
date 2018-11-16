@@ -6,7 +6,14 @@ before_install:
   - go get github.com/mattn/goveralls
 
 script:
-  - make coveralls
+  - make test
+
+deploy:
+  provider: script
+  script: make coverall
+  on:
+    repo: senseyeio/diligent
+    branch: master
 
 sudo: required
 services:
