@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/senseyeio/diligent"
+	warnpkg "github.com/senseyeio/diligent/warning"
 )
 
 func isInWhitelist(l diligent.License) bool {
@@ -23,6 +24,36 @@ func checkWhitelist() error {
 		}
 	}
 	return nil
+}
+
+func isIgnored(pkgName string) bool {
+	for _, i := range ignoreRegex {
+		if i.MatchString(pkgName) {
+			return true
+		}
+	}
+	return false
+}
+
+func ignorePackages(dd []diligent.Dep, ww []diligent.Warning) ([]diligent.Dep, []diligent.Warning) {
+	ddOut := make([]diligent.Dep, 0, len(dd))
+	for _, d := range dd {
+		if !isIgnored(d.Name) {
+			ddOut = append(ddOut, d)
+		}
+	}
+	wwOut := make([]diligent.Warning, 0, len(ww))
+	for _, w := range ww {
+		warn, ok := w.(*warnpkg.Warn)
+		if !ok {
+			wwOut = append(wwOut, w)
+			continue
+		}
+		if !isIgnored(warn.Dep) {
+			wwOut = append(wwOut, w)
+		}
+	}
+	return ddOut, wwOut
 }
 
 func validateDependencies(deps []diligent.Dep) []error {

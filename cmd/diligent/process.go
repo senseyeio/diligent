@@ -6,11 +6,12 @@ import (
 
 	"path/filepath"
 
+	"fmt"
+	"io"
+
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/csv"
 	"github.com/senseyeio/diligent/pretty"
-	"io"
-	"fmt"
 )
 
 type toSortInterfacer func(deps []diligent.Dep) sort.Interface
@@ -76,6 +77,7 @@ func run(args []string) {
 		deps = append(deps, d...)
 		warnings = append(warnings, w...)
 	}
+	deps, warnings = ignorePackages(deps, warnings)
 
 	for _, w := range warnings {
 		warning(w.Warning())
@@ -97,7 +99,6 @@ func run(args []string) {
 	if err != nil {
 		fatal(65, err.Error())
 	}
-
 
 	if errs := validateDependencies(deps); len(errs) > 0 {
 		if len(errs) == 1 {

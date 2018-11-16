@@ -77,3 +77,4 @@ diligent {path}
 | 68  | Discovered licenses do not match provided whitelist  |
 | 69  | Could not process provided file  |
 | 70  | The whitelist provided was invalid  |
+| 71  | The package ignore list provided was invalid  |

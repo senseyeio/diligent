@@ -1,16 +1,20 @@
 package main
 
 import (
+	"regexp"
+
 	"github.com/senseyeio/diligent"
 	"github.com/spf13/cobra"
 )
 
 var (
 	licenseWhitelist []string
+	pkgIgnore        []string
+	ignoreRegex      []*regexp.Regexp
 	npmDevDeps       bool
 	sortByLicense    bool
-	csvOutput bool
-	outputFilename string
+	csvOutput        bool
+	outputFilename   string
 )
 
 var RootCmd = &cobra.Command{
@@ -21,6 +25,14 @@ var RootCmd = &cobra.Command{
 		if err := checkWhitelist(); err != nil {
 			fatal(70, err.Error())
 		}
+		ignoreRegex = make([]*regexp.Regexp, len(pkgIgnore))
+		for idx, i := range pkgIgnore {
+			r, err := regexp.Compile(i)
+			if err != nil {
+				fatal(71, err.Error())
+			}
+			ignoreRegex[idx] = r
+		}
 	},
 }
 
@@ -30,9 +42,10 @@ func init() {
 
 func applyCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVarP(&npmDevDeps, "npm-dev-deps", "", false, "[NPM] Include developer dependencies")
-	cmd.Flags().BoolVarP(&csvOutput, "csv", "", false,  "Writes the output as comma separated values")
+	cmd.Flags().BoolVarP(&csvOutput, "csv", "", false, "Writes the output as comma separated values")
 	cmd.Flags().BoolVarP(&sortByLicense, "license", "l", false, "Sorts output by license")
 	cmd.Flags().StringVarP(&outputFilename, "out", "o", "", "Filename to which output should be written. By default or when blank stdout is used")
+	cmd.Flags().StringSliceVarP(&pkgIgnore, "ignore", "i", nil, "Ignore certain packages. Ignored packages will not be reported on or validated against your whitelist. Regular expressions can be used.")
 }
 
 func applyWhitelistFlag(cmd *cobra.Command) {
