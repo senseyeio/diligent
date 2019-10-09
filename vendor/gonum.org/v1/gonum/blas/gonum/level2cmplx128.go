@@ -11,6 +11,8 @@ import (
 	"gonum.org/v1/gonum/internal/asm/c128"
 )
 
+var _ blas.Complex128Level2 = Implementation{}
+
 // Zgbmv performs one of the matrix-vector operations
 //  y = alpha * A * x + beta * y    if trans = blas.NoTrans
 //  y = alpha * A^T * x + beta * y  if trans = blas.Trans
@@ -2332,7 +2334,7 @@ func (Implementation) Ztpsv(uplo blas.Uplo, trans blas.Transpose, diag blas.Diag
 			if incX == 1 {
 				for i := 0; i < n; i++ {
 					if i > 0 {
-						x[i] -= c128.DotuUnitary(x[:i], ap[kk:kk+i+1])
+						x[i] -= c128.DotuUnitary(x[:i], ap[kk:kk+i])
 					}
 					if diag == blas.NonUnit {
 						x[i] /= ap[kk+i]
@@ -2343,7 +2345,7 @@ func (Implementation) Ztpsv(uplo blas.Uplo, trans blas.Transpose, diag blas.Diag
 				ix := kx
 				for i := 0; i < n; i++ {
 					if i > 0 {
-						x[ix] -= c128.DotuInc(x, ap[kk:kk+i+1], uintptr(i), uintptr(incX), 1, uintptr(kx), 0)
+						x[ix] -= c128.DotuInc(x, ap[kk:kk+i], uintptr(i), uintptr(incX), 1, uintptr(kx), 0)
 					}
 					if diag == blas.NonUnit {
 						x[ix] /= ap[kk+i]

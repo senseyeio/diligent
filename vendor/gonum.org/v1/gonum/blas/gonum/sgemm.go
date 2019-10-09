@@ -184,13 +184,6 @@ func sgemmParallel(aTrans, bTrans bool, m, n, k int, a []float32, lda int, b []f
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			// Make local copies of otherwise global variables to reduce shared memory.
-			// This has a noticeable effect on benchmarks in some cases.
-			alpha := alpha
-			aTrans := aTrans
-			bTrans := bTrans
-			m := m
-			n := n
 			for sub := range sendChan {
 				i := sub.i
 				j := sub.j
@@ -270,7 +263,7 @@ func sgemmSerialNotNot(m, n, k int, a []float32, lda int, b []float32, ldb int, 
 		for l, v := range a[i*lda : i*lda+k] {
 			tmp := alpha * v
 			if tmp != 0 {
-				f32.AxpyUnitaryTo(ctmp, tmp, b[l*ldb:l*ldb+n], ctmp)
+				f32.AxpyUnitary(tmp, b[l*ldb:l*ldb+n], ctmp)
 			}
 		}
 	}
@@ -286,7 +279,7 @@ func sgemmSerialTransNot(m, n, k int, a []float32, lda int, b []float32, ldb int
 			tmp := alpha * v
 			if tmp != 0 {
 				ctmp := c[i*ldc : i*ldc+n]
-				f32.AxpyUnitaryTo(ctmp, tmp, btmp, ctmp)
+				f32.AxpyUnitary(tmp, btmp, ctmp)
 			}
 		}
 	}
