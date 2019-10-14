@@ -3,6 +3,7 @@ package gomod_test
 import (
 	"errors"
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/senseyeio/diligent/gomod"
@@ -222,11 +223,23 @@ func TestDependencies(t *testing.T) {
 			mockLG := newMockLicenseGetter(t, tt.getLicenseLUT)
 			target := gomod.New(mockLG)
 			d, w, e := target.Dependencies(tt.in)
-			if (len(d) > 0 || len(tt.depsOut) > 0) && reflect.DeepEqual(d, tt.depsOut) == false {
-				t.Errorf("deps: got %v, want %v", d, tt.depsOut)
+			if len(d) > 0 || len(tt.depsOut) > 0 {
+				actual := diligent.DepsByName(d)
+				sort.Sort(actual)
+				expected := diligent.DepsByName(tt.depsOut)
+				sort.Sort(expected)
+				if reflect.DeepEqual(actual, expected) == false {
+					t.Errorf("deps: got %v, want %v", actual, expected)
+				}
 			}
-			if (len(w) > 0 || len(tt.warnsOut) > 0) && reflect.DeepEqual(w, tt.warnsOut) == false {
-				t.Errorf("warnings: got %v, want %v", w, tt.warnsOut)
+			if len(w) > 0 || len(tt.warnsOut) > 0 {
+				actual := diligent.Warnings(w)
+				sort.Sort(actual)
+				expected := diligent.Warnings(tt.warnsOut)
+				sort.Sort(expected)
+				if reflect.DeepEqual(actual, expected) == false {
+					t.Errorf("warnings: got %v, want %v", actual, expected)
+				}
 			}
 			isErr := e != nil
 			if tt.errOut != isErr {
