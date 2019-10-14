@@ -232,6 +232,25 @@ func TestDependencies(t *testing.T) {
 		},
 		false,
 	}, {
+		"should support old license objects",
+		npm.Config{},
+		[]byte(`
+			{
+				"dependencies": {
+					"d3": "5.0.0"
+				}
+			}
+		`),
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("{\"license\":{\"type\":\"MIT\"}}"))
+		}),
+		map[string]string{
+			"d3": "MIT",
+		},
+		[]diligent.Warning{},
+		false,
+	}, {
 		"should fail if response is not valid JSON",
 		npm.Config{},
 		[]byte(`

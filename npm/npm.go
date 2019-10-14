@@ -19,8 +19,10 @@ type packageJSON struct {
 	DevDeps map[string]string `json:"devDependencies"`
 }
 
+type license string
+
 type npmPackage struct {
-	License *string `json:"license"`
+	License *license `json:"license"`
 }
 
 type npmDeper struct {
@@ -112,7 +114,7 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 		return diligent.Dep{}, errors.New("no license information in NPM")
 	}
 
-	l, err := diligent.GetLicenseFromIdentifier(*packageInfo.License)
+	l, err := diligent.GetLicenseFromIdentifier(string(*packageInfo.License))
 	if err != nil {
 		return diligent.Dep{}, err
 	}
@@ -126,4 +128,20 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 func (n *npmDeper) getNPMLicense(pkgName, version string) (diligent.Dep, error) {
 	npmURL := fmt.Sprintf("%s/%s?version=%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
 	return getNPMLicenseFromURL(pkgName, npmURL)
+}
+
+func (l *license) UnmarshalJSON(data []byte) error {
+	var raw interface{}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	switch raw := raw.(type) {
+	case string:
+		*l = license(raw)
+	case map[string]interface{}:
+		if t, ok := raw["type"].(string); ok {
+			*l = license(t)
+		}
+	}
+	return nil
 }
