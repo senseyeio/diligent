@@ -13,6 +13,7 @@ Get the licenses associated with your software dependencies. Enforce that the op
 The following languages and dependency managers are supported:
 
  - Go
+   - go modules (go.mod)
    - govendor (vendor.json)
    - dep (Gopkg.lock)
  - Node / Javascript

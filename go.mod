@@ -6,7 +6,6 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-metro v0.0.0-20180109044635-280f6062b5bc // indirect
 	github.com/dgryski/go-minhash v0.0.0-20170608043002-7fe510aff544 // indirect
 	github.com/dgryski/go-spooky v0.0.0-20170606183049-ed3d087f40e2 // indirect
@@ -24,14 +23,13 @@ require (
 	github.com/neurosnap/sentences v1.0.6 // indirect
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
 	github.com/pelletier/go-toml v1.1.0
-	github.com/pkg/errors v0.8.0 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/shogo82148/go-shuffle v0.0.0-20180218125048-27e6095f230d // indirect
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
+	github.com/sirkon/goproxy v1.4.8
 	github.com/spf13/cobra v0.0.1
 	github.com/spf13/pflag v1.0.0 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
 	gonum.org/v1/netlib v0.0.0-20190926062253-2d6e29b73a19 // indirect
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
