@@ -8,9 +8,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/go-enry/go-license-detector/v4/licensedb"
+	"github.com/go-enry/go-license-detector/v4/licensedb/filer"
 	"github.com/senseyeio/diligent"
-	"gopkg.in/src-d/go-license-detector.v2/licensedb"
-	"gopkg.in/src-d/go-license-detector.v2/licensedb/filer"
 )
 
 // LicenseGetter provides methods to retrieve the licenses associated with go packages
@@ -88,7 +88,7 @@ func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
 	}
 	maxKey := ""
 	for k, v := range licenses {
-		if maxKey == "" || licenses[maxKey] < v {
+		if maxKey == "" || licenses[maxKey].Confidence < v.Confidence {
 			maxKey = k
 		}
 	}
