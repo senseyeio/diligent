@@ -1,8 +1,12 @@
 package diligent
 
 import (
+	"errors"
 	"fmt"
 	"sort"
+
+	"github.com/go-enry/go-license-detector/v4/licensedb"
+	"github.com/go-enry/go-license-detector/v4/licensedb/filer"
 )
 
 // Category attempts to categorize licenses based on what they allow
@@ -422,6 +426,27 @@ func handleNonSPDXIdentifiers(identifier string) (License, bool) {
 	}
 	l, ok := lookup[spdx]
 	return l, ok
+}
+
+func GetLicenseForDirectory(directory string) (License, error) {
+	files, err := filer.FromDirectory(directory)
+	if err != nil {
+		return License{}, err
+	}
+	licenses, err := licensedb.Detect(files)
+	if err != nil {
+		return License{}, err
+	}
+	maxKey := ""
+	for k, v := range licenses {
+		if maxKey == "" || licenses[maxKey].Confidence < v.Confidence {
+			maxKey = k
+		}
+	}
+	if maxKey == "" {
+		return License{}, errors.New("could not identify license")
+	}
+	return GetLicenseFromIdentifier(maxKey)
 }
 
 // GetLicenseFromIdentifier returns a License given an identifier. Ideally this identifier would be a SPDX identifier.

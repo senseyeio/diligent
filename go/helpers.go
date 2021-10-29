@@ -8,8 +8,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/go-enry/go-license-detector/v4/licensedb"
-	"github.com/go-enry/go-license-detector/v4/licensedb/filer"
 	"github.com/senseyeio/diligent"
 )
 
@@ -67,33 +65,16 @@ func (lg *LicenseGetter) getLicenseForBasePackage(pkg string) (diligent.License,
 	if err == nil {
 		return l, nil
 	}
-	return diligent.License{}, errors.New("failed to find license")
+	return diligent.License{}, err
 }
 
 func getLicenseFromLicenseFile(pkg string) (diligent.License, error) {
 	cmd := exec.Command("go", "get", "-d", fmt.Sprintf("%s/...", pkg))
+	cmd.Env = append(os.Environ(), "GO111MODULE=off")
 	err := cmd.Run()
 	if err != nil {
 		return diligent.License{}, err
 	}
-
 	dir := fmt.Sprintf("%s/src/%s", goPath(), pkg)
-	filer, err := filer.FromDirectory(dir)
-	if err != nil {
-		return diligent.License{}, err
-	}
-	licenses, err := licensedb.Detect(filer)
-	if err != nil {
-		return diligent.License{}, err
-	}
-	maxKey := ""
-	for k, v := range licenses {
-		if maxKey == "" || licenses[maxKey].Confidence < v.Confidence {
-			maxKey = k
-		}
-	}
-	if maxKey == "" {
-		return diligent.License{}, errors.New("could not identify license")
-	}
-	return diligent.GetLicenseFromIdentifier(maxKey)
+	return diligent.GetLicenseForDirectory(dir)
 }

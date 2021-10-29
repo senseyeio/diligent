@@ -8,7 +8,7 @@ import (
 	"errors"
 
 	"github.com/senseyeio/diligent"
-	"github.com/senseyeio/diligent/go"
+	_go "github.com/senseyeio/diligent/go"
 )
 
 type webLicenseGetterResponse struct {
@@ -89,7 +89,7 @@ func TestGoGetLicenseLookup(t *testing.T) {
 	t.Run("should succeed with an valid package", func(t *testing.T) {
 		l, err := target.GetLicense("github.com/senseyeio/spaniel")
 		if err != nil {
-			t.Errorf("did not expect an error, got %v", err)
+			t.Errorf("did not expect an error, got %q", err)
 		}
 		if l.Identifier != "MIT" {
 			t.Errorf("expected MIT license, got %+v", l)

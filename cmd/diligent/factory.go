@@ -8,7 +8,8 @@ import (
 	"github.com/senseyeio/diligent"
 	"github.com/senseyeio/diligent/dep"
 	"github.com/senseyeio/diligent/github"
-	"github.com/senseyeio/diligent/go"
+	_go "github.com/senseyeio/diligent/go"
+	"github.com/senseyeio/diligent/gomod"
 	"github.com/senseyeio/diligent/govendor"
 	"github.com/senseyeio/diligent/npm"
 )
@@ -23,6 +24,7 @@ var depers = []diligent.Deper{
 	npm.New(npmAPIURL),
 	govendor.New(goLG),
 	dep.New(goLG),
+	gomod.New(goLG),
 }
 
 func getDeper(path string) (diligent.Deper, error) {
