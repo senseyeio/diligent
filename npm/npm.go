@@ -21,13 +21,47 @@ type packageJSON struct {
 
 type license string
 
+type repo string
+type repoObject struct {
+	Type string `json:"type"`
+	URL  string `json:"url"`
+}
+
+// WebLicenseGetter retrieves license information from an online source
+type WebLicenseGetter interface {
+	IsCompatibleURL(s string) bool
+	GetLicenseFromURL(s string) (diligent.License, error)
+}
+
+func (r *repo) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err == nil {
+		if strings.HasPrefix(str, "github:") {
+			str = strings.Replace(str, "github:", "git+https://github.com/", 1)
+		}
+		*r = repo(str)
+		return nil
+	}
+	var ro repoObject
+	err = json.Unmarshal(data, &ro)
+	if err == nil {
+		*r = repo(ro.URL)
+		return nil
+	}
+	return errors.New("unknown format for 'repository'")
+
+}
+
 type npmPackage struct {
-	License *license `json:"license"`
+	License    *license `json:"license"`
+	Repository *repo    `json:"repository"`
 }
 
 type npmDeper struct {
 	config Config
 	url    string
+	webLG  WebLicenseGetter
 }
 
 // Config allows default options to be altered
@@ -37,13 +71,13 @@ type Config struct {
 }
 
 // New returns a Deper capable of dealing with package.json manifest files
-func New(url string) diligent.Deper {
-	return NewWithOptions(url, Config{})
+func New(url string, webLG WebLicenseGetter) diligent.Deper {
+	return NewWithOptions(url, webLG, Config{})
 }
 
 // NewWithOptions is identical to New but allows the default options to be overridden
-func NewWithOptions(url string, c Config) diligent.Deper {
-	return &npmDeper{c, url}
+func NewWithOptions(url string, webLG WebLicenseGetter, c Config) diligent.Deper {
+	return &npmDeper{c, url, webLG}
 }
 
 // Name returns "npm"
@@ -89,7 +123,7 @@ func (n *npmDeper) IsCompatible(filename string) bool {
 	return filename == "package.json"
 }
 
-func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
+func (n *npmDeper) getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return diligent.Dep{}, err
@@ -110,24 +144,45 @@ func getNPMLicenseFromURL(pkgName, url string) (diligent.Dep, error) {
 		return diligent.Dep{}, errors.New("parsing NPM response failed - invalid JSON")
 	}
 
-	if packageInfo.License == nil {
-		return diligent.Dep{}, errors.New("no license information in NPM")
+	if packageInfo.License != nil {
+		l, err := diligent.GetLicenseFromIdentifier(string(*packageInfo.License))
+		if err == nil {
+			return diligent.Dep{
+				Name:    pkgName,
+				License: l,
+			}, nil
+		}
 	}
 
-	l, err := diligent.GetLicenseFromIdentifier(string(*packageInfo.License))
-	if err != nil {
-		return diligent.Dep{}, err
+	if packageInfo.Repository != nil {
+		if n.webLG != nil && n.webLG.IsCompatibleURL(string(*packageInfo.Repository)) {
+			gitUrl := string(*packageInfo.Repository)
+			repoURL := strings.Replace(gitUrl, ".git", "", 1)
+			l, err := n.webLG.GetLicenseFromURL(repoURL)
+			if err == nil {
+				return diligent.Dep{
+					Name:    pkgName,
+					License: l,
+				}, nil
+			}
+		}
+		if strings.HasPrefix(string(*packageInfo.Repository), "git") {
+			l, err := diligent.GetLicenseForGit(string(*packageInfo.Repository))
+			if err == nil {
+				return diligent.Dep{
+					Name:    pkgName,
+					License: l,
+				}, nil
+			}
+		}
 	}
 
-	return diligent.Dep{
-		Name:    pkgName,
-		License: l,
-	}, nil
+	return diligent.Dep{}, errors.New("no license information in NPM")
 }
 
 func (n *npmDeper) getNPMLicense(pkgName, version string) (diligent.Dep, error) {
 	npmURL := fmt.Sprintf("%s/%s?version=%s", n.url, strings.Replace(url.QueryEscape(pkgName), "%40", "@", 1), url.QueryEscape(version))
-	return getNPMLicenseFromURL(pkgName, npmURL)
+	return n.getNPMLicenseFromURL(pkgName, npmURL)
 }
 
 func (l *license) UnmarshalJSON(data []byte) error {

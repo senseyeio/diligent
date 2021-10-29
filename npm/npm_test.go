@@ -18,7 +18,7 @@ import (
 )
 
 func TestName(t *testing.T) {
-	target := npm.New("")
+	target := npm.New("", nil)
 	if target.Name() != "npm" {
 		t.Error("expected 'npm'")
 	}
@@ -39,7 +39,7 @@ func TestIsCompatible(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.in, func(t *testing.T) {
-			target := npm.New("")
+			target := npm.New("", nil)
 			compatible := target.IsCompatible(tt.in)
 			if compatible != tt.out {
 				t.Errorf("got %v, want %v", compatible, tt.out)
@@ -213,25 +213,6 @@ func TestDependencies(t *testing.T) {
 		[]diligent.Warning{},
 		true,
 	}, {
-		"should fail with unknown license",
-		npm.Config{},
-		[]byte(`
-			{
-				"dependencies": {
-					"d3": "5.0.0"
-				}
-			}
-		`),
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("{\"license\":\"woowoo\"}"))
-		}),
-		map[string]string{},
-		[]diligent.Warning{
-			warning.New("d3", "license identifier woowoo is not known to diligent"),
-		},
-		false,
-	}, {
 		"should support old license objects",
 		npm.Config{},
 		[]byte(`
@@ -294,7 +275,7 @@ func TestDependencies(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			ts := httptest.NewServer(tt.handler)
 			defer ts.Close()
-			target := npm.NewWithOptions(ts.URL, tt.config)
+			target := npm.NewWithOptions(ts.URL, nil, tt.config)
 			d, w, e := target.Dependencies(tt.in)
 			expectedDeps := make([]diligent.Dep, 0, len(tt.depsOut))
 			for depID, lID := range tt.depsOut {

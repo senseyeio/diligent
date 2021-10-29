@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/go-enry/go-license-detector/v4/licensedb"
 	"github.com/go-enry/go-license-detector/v4/licensedb/filer"
@@ -428,12 +429,8 @@ func handleNonSPDXIdentifiers(identifier string) (License, bool) {
 	return l, ok
 }
 
-func GetLicenseForDirectory(directory string) (License, error) {
-	files, err := filer.FromDirectory(directory)
-	if err != nil {
-		return License{}, err
-	}
-	licenses, err := licensedb.Detect(files)
+func getLicenseForFiles(f filer.Filer) (License, error) {
+	licenses, err := licensedb.Detect(f)
 	if err != nil {
 		return License{}, err
 	}
@@ -447,6 +444,25 @@ func GetLicenseForDirectory(directory string) (License, error) {
 		return License{}, errors.New("could not identify license")
 	}
 	return GetLicenseFromIdentifier(maxKey)
+}
+
+func GetLicenseForDirectory(directory string) (License, error) {
+	files, err := filer.FromDirectory(directory)
+	if err != nil {
+		return License{}, err
+	}
+	return getLicenseForFiles(files)
+}
+
+func GetLicenseForGit(url string) (License, error) {
+	if strings.HasPrefix(url, "git+") {
+		url = strings.Replace(url, "git+", "", 1)
+	}
+	files, err := filer.FromGitURL(url)
+	if err != nil {
+		return License{}, err
+	}
+	return getLicenseForFiles(files)
 }
 
 // GetLicenseFromIdentifier returns a License given an identifier. Ideally this identifier would be a SPDX identifier.
