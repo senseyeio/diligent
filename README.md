@@ -1,4 +1,4 @@
-# Diligent [![Build Status](https://travis-ci.org/senseyeio/diligent.svg?branch=master)](https://travis-ci.org/senseyeio/diligent) [![Docker Build Status](https://img.shields.io/docker/build/senseyeio/diligent.svg)](https://hub.docker.com/r/senseyeio/diligent/) [![GoDoc](https://godoc.org/github.com/senseyeio/diligent?status.svg)](https://godoc.org/github.com/senseyeio/diligent)
+# Diligent [![Docker Build Status](https://img.shields.io/docker/build/senseyeio/diligent.svg)](https://hub.docker.com/r/senseyeio/diligent/) [![GoDoc](https://godoc.org/github.com/senseyeio/diligent?status.svg)](https://godoc.org/github.com/senseyeio/diligent)
 
 Get the licenses associated with your software dependencies. Enforce that the open source licenses used by your software are compatible with your business and software licensing.
 
