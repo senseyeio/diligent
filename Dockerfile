@@ -1,5 +1,6 @@
-FROM golang:1.11.0-alpine3.8 AS src
+FROM golang:1.17-alpine AS src
 
+ENV GO111MODULE=on
 VOLUME ["/test-results"]
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh gcc libc-dev
@@ -10,6 +11,6 @@ COPY . .
 FROM src as run
 
 VOLUME ["/dep"]
+RUN go install -mod vendor github.com/senseyeio/diligent/cmd/diligent
 WORKDIR /dep
 ENTRYPOINT ["/go/bin/diligent"]
-RUN go install github.com/senseyeio/diligent/cmd/diligent
